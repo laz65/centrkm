@@ -1,0 +1,72 @@
+RAM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+sig_bit                                                                           0x0300       1
+sost                                                                              0x0301      32
+time                                                                              0x0321       4
+twi_tx_index                                                                      0x0325       1
+twi_rx_index                                                                      0x0326       1
+twi_result                                                                        0x0327       1
+twi_rx_buffer                                                                     0x0328      32
+twi_tx_buffer                                                                     0x0348      32
+_base_y                                                                           0x0368       4
+_lcd_x                                                                            0x036C       1
+_lcd_y                                                                            0x036D       1
+_lcd_maxx                                                                         0x036E       1
+slave_address                                                                     0x036F       1
+twi_tx_buffer                                                                     0x0370       2
+bytes_to_tx                                                                       0x0372       1
+twi_rx_buffer                                                                     0x0373       2
+bytes_to_rx                                                                       0x0375       1
+twi_rx_buffer_size                                                                0x0376       1
+twi_slave_rx_handler                                                              0x0377       2
+twi_slave_tx_handler                                                              0x0379       2
+
+EEPROM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+procfreq                                                                          0x0000       4
+esost                                                                             0x0004      32
+
+Register Allocation
+Variable                                                                          Register  Size
+------------------------------------------------------------------------------------------------
+ton1                                                                              R3,R4        2
+a                                                                                 R5,R6        2
+z                                                                                 R8           1
+n                                                                                 R7           1
+s435                                                                              R10          1
+period                                                                            R9           1
+per_old                                                                           R12          1
+per_new                                                                           R11          1
+i                                                                                 R14          1
+sig_bayt                                                                          R13          1
+flag435                                                                           GPIOR0.0  1bit
+trevoga                                                                           GPIOR0.1  1bit
+pit_ok                                                                            GPIOR0.2  1bit
+sinc_err                                                                          GPIOR0.3  1bit
+pit_err                                                                           GPIOR0.4  1bit
+fix                                                                               GPIOR0.5  1bit
+twi_flag                                                                          GPIOR0.6  1bit
+twi_ready                                                                         GPIOR0.7  1bit
+
+FLASH Allocation [words]
+Function                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+timer0_ovf_isr                                                                    0x00138     20
+timer1_ovf_isr                                                                    0x0014C     33
+ana_comp_isr                                                                      0x0016D     35
+twi_rx_handler                                                                    0x00190     21
+twi_tx_handler                                                                    0x001A5     10
+fdel                                                                              0x001AF     52
+clear_lcd                                                                         0x001E3      7
+main                                                                              0x001EA    726
+_lcd_write_nibble_G100                                                            0x004C0     37
+_lcd_write_data                                                                   0x004E5     13
+lcd_gotoxy                                                                        0x004F2     17
+lcd_clear                                                                         0x00503     14
+lcd_putchar                                                                       0x00511     32
+lcd_putsf                                                                         0x00531     19
+lcd_init                                                                          0x00544     48
+twi_slave_init                                                                    0x00574     58
+twi_int_handler                                                                   0x005AE    380
