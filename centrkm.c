@@ -40,7 +40,9 @@ Data Stack size         : 512
 
 
 
-// Declare your global variables here
+// Declare your global variables here   \
+
+// таблице синуса для формирования синусоидального напряжения
 flash unsigned char sinus[] = {130,133,136,139,143,146,149,152,155,158,161,164,167,170,173,176,178,
 181,184,187,190,192,195,198,200,203,205,208,210,212,215,217,219,221,223,225,227,229,231,233,234,236,
 238,239,240,242,243,244,245,247,248,249,249,250,251,252,252,253,253,253,254,254,254,254,254,254,254,
@@ -54,7 +56,7 @@ flash unsigned char sinus[] = {130,133,136,139,143,146,149,152,155,158,161,164,1
 unsigned int ton1,a;
 unsigned char z, n, s435, period, per_old, per_new, i, sig_bayt, sig_bit, sost[32];
 unsigned long time;
-bit flag435, trevoga, pit_ok, sinc_err, pit_err, fix;
+bit flag435, trevoga, pit_ok, sinc_err, pit_err, fix, nagh;
 
 eeprom long procfreq = 16000000;
 eeprom unsigned char esost[32] ;
@@ -77,7 +79,7 @@ OCR0B=sinus[z];
 interrupt [TIM1_OVF] void timer1_ovf_isr(void)
 {
 // Place your code here
-    time = time + 1;
+    time = time + 1;    // для измерения задержек (единица = 4 мС)
 }
 
 // Analog Comparator interrupt service routine
@@ -365,26 +367,49 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
 //PORTD.4 = 0;
 //PORTD.2 = 1;
 #asm("sei")
+OCR2B=0x00; // выключение преобразователя
+
+for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
 
     while (1)
     {   
       for (i = 0 ; i < 128 ; i++)
       {     
-          if(!kn1) fix = 1;      
-          sig_bayt = i / 4;
-          sig_bit = (i - sig_bayt * 4) * 2;  
+          if(kn1) nagh = 0;  // сброс флага нажатия при отпущеной кнопке      
+          if(!kn1) 
+          {
+            if(!nagh)  // если кнопка только-что нажата 
+            {            
+                nagh = 1;
+                lcd_gotoxy(3,0);
+                if (fix)
+                {
+                    fix  = 0;         // если была включена фиксация, - выключить            
+                    lcd_putchar(' ');
+                }
+                else
+                {
+                    fix = 1;         // включить фиксацию
+                    lcd_putchar('F');  
+                }
+
+            }               
+            
+          }      
+          sig_bayt = i / 4;    // текущий байт в слове состояния                 
+          sig_bit = (i - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
           TCCR0B |= (1<<CS00);  // включить таймер 0;
           vyh_t0 = 1;  // переключить на выход 
           time = 0;
-          while (time < 6);  
+          while (time < 6);  // задержка 25 мСек
           zvuk = 0;  
-          if(i == 0) while (time < 75); 
+          if(i == 0) while (time < 75); // если первый шаг, задержка 300 мСек
           OCR0B=127;
           vyh_t0 = 0;            // переключить а вход 
           TCCR0B &= ~(1<<CS00);    // выкл таймер 0              
           ACSR |= (1<<ACIE); // включить перывания от компарат   
           time = 0;
-          while (time < 6);
+          while (time < 6);    // 25мСек
           ACSR &= ~(1<<ACIE); // выкл прер компар  
           if (flag435) // если был отлет 435 Гц
           { 
@@ -392,7 +417,6 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
             {
                 case 31:  
                     // вывод первой половины на дисп  
-//                    if(!kn1) fix = !fix;
                     if (!fix)
                     {
                         clear_lcd();
@@ -436,12 +460,27 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
                     zvuk = 1;
                     break;
                 default:
-                    if (sost[sig_bayt]&(1<<sig_bit))           // тревога
-                    {   
-                        sost[sig_bayt] |= (1<<(sig_bit+1));
-                        trevoga = 1;  
-                        zvuk = 1;
-                    }
+                    if (sost[sig_bayt]&(1<<sig_bit))
+                    {    
+                        while(time < 12); // 
+                        flag435 = 0;
+                        while(time < 18);                                                                // если объекм был по охраной тревога
+                        if (flag435) 
+                        {
+                            sost[sig_bayt] |= (1<<(sig_bit+1));
+                            trevoga = 1;  
+                            zvuk = 1;
+                        }
+                        else   // если обект под охраной и короткий звук, нужно поставить под охрану.
+                        {
+                            OCR2B=0x80; // выдача на шим
+                            vyh_plus = 1;
+                        }
+                            while(time<375)  
+                            vyh_plus = 0;
+                            OCR2B=0x00;
+                    } 
+
             } 
           } 
           else      // если не было ответа
@@ -449,29 +488,18 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
             switch (i)
             {
                 case 31:  
-//                    if(!kn1) fix = !fix;
                     if (!fix)
                     {
                         clear_lcd(); 
                         lcd_gotoxy(0,1);
                         lcd_putsf("Error Pitanie!!!");
-                    } else 
-                    {
-                       lcd_gotoxy(3,0);                         
-                        if(!kn1)  
-                        {
-                            fix = 0;
-                            lcd_putchar(' ');
-                        }                                           
-                        else lcd_putchar('F');
-                           
-                    }
+                    } 
+
                     pit_err = 1;
                     pit_ok = 0;
                     break;   
                 case 63:  
                     // вывод второй половины на дисп  
-//                    if(!kn1) fix = !fix;
                     if (!fix)
                     {
                         clear_lcd();
@@ -492,21 +520,10 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
                             }
                         }  
                     } 
-                    else 
-                    {
-                       lcd_gotoxy(3,0);                         
-                        if(!kn1)  
-                        {
-                            fix = 0;
-                            lcd_putchar(' ');
-                        }                                           
-                        else lcd_putchar('F');
-                           
-                    }
+                    
                     break;
                 case 95: 
                     // вывод третьей половины на дисп  
-//                    if(!kn1) fix = !fix;
                     if (!fix)
                     {
                         clear_lcd();
@@ -527,21 +544,9 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
                             }
                         }  
                     } 
-                    else 
-                    {
-                        lcd_gotoxy(3,0);                         
-                        if(!kn1)  
-                        {
-                            fix = 0;
-                            lcd_putchar(' ');
-                        }                                           
-                        else lcd_putchar('F');
-                           
-                    }
-
+                    break;
                 case 127:  
                     // вывод четвертой половины на дисп  
-//                    if(!kn1) fix = !fix;
                     if (!fix)
                     {
                         clear_lcd();
@@ -562,19 +567,7 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
                             }
                         }  
                     } 
-                    else 
-                    {
-                       lcd_gotoxy(3,0);                         
-                        if(!kn1)  
-                        {
-                            fix = 0;
-                            lcd_putchar(' ');
-                        }                                           
-                        else lcd_putchar('F');
-                           
-                    }
-
-                    for(n=0;n<31;n++) if (sost[n] != esost[n]) esost[n] = sost[n];
+                    for(n=0;n<31;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
                     break;
                 case 15: 
                 case 47: 
@@ -582,12 +575,7 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
                 case 111: 
                     break;
                 default:
-                    if ((sost[sig_bayt]&(1<<sig_bit)) == 0)
-                    {   
-//                        sost[sig_bayt] |= (1<<(sig_bit+1));
-                        zvuk = 1;
-//                        trevoga = 1; 
-                    }
+                    if ((sost[sig_bayt]&(1<<sig_bit)) == 0) zvuk = 1; // звук если нет ответа от номера не под охраной
             } 
              
           } 
@@ -598,8 +586,8 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
             pit_ok = 0;       
           }               
           
-          if (trevoga) while (time < 375);
-          trevoga = 0;         
+//          if (trevoga) //while (time < 375);
+//          trevoga = 0;         
           if (sinc_err)  
           {
             sinc_err = 0;  
