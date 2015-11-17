@@ -861,7 +861,7 @@
 ;PCODE: $000001AC VOL: 0
 ;PCODE: $000001AD VOL: 0
 ;PCODE: $000001AE VOL: 0
-; 0000 01A4                                 sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состоян ...
+; 0000 01A4                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
 ;PCODE: $000001AF VOL: 0
 ;PCODE: $000001B0 VOL: 0
 ;PCODE: $000001B1 VOL: 0
@@ -937,7 +937,7 @@
 ;PCODE: $000001E9 VOL: 0
 ;PCODE: $000001EA VOL: 0
 ; 0000 01B3                 {
-; 0000 01B4                     if(++pos >  31)
+; 0000 01B4                     if(++pos >  30)
 ;PCODE: $000001EB VOL: 0
 ;PCODE: $000001EC VOL: 0
 ;PCODE: $000001ED VOL: 0
@@ -954,7 +954,7 @@
 ;PCODE: $000001F4 VOL: 0
 ;PCODE: $000001F5 VOL: 0
 ; 0000 01B9                     }
-; 0000 01BA                     else if(pos == 16) pos++;
+; 0000 01BA                     else if(pos == 15) pos++;
 ;PCODE: $000001F6 VOL: 0
 ;PCODE: $000001F7 VOL: 0
 ;PCODE: $000001F8 VOL: 0
@@ -1008,7 +1008,7 @@
 ;PCODE: $0000021B VOL: 0
 ;PCODE: $0000021C VOL: 0
 ;PCODE: $0000021D VOL: 0
-; 0000 01C8                                 sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состоян ...
+; 0000 01C8                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
 ;PCODE: $0000021E VOL: 0
 ;PCODE: $0000021F VOL: 0
 ;PCODE: $00000220 VOL: 0
