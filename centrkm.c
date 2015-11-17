@@ -407,7 +407,7 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
             if(p10++ == 0)
             { 
             // отображение подч
-  
+
                     lcd_gotoxy(x_dysp,y_dysp);   
                     lcd_putchar('_'); 
              
@@ -415,9 +415,9 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
             if(p10 == 8)
             {
                 // отображение текущего состояние точки n
-            
+
                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния                 
-                                sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
+                                sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове состояния
                                 lcd_gotoxy(x_dysp,y_dysp); 
                                 if((sost[sig_bayt]&(1<<sig_bit)))
                                 {
@@ -433,13 +433,13 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
 
                 if(!kn2)
                 {      
-                    if(++pos >  31) 
+                    if(++pos >  30) 
                     {
                         pos = 0;
                         x_dysp = 3;
                         y_dysp = 0;
                     } 
-                    else if(pos == 16) pos++;
+                    else if(pos == 15) pos++;
                     x_dysp++;
                     if(++x_dysp > 15) 
                     {
@@ -453,7 +453,7 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                     // включение - выключение охраны   
                     lcd_gotoxy(x_dysp,y_dysp); 
                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния                 
-                                sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
+                                sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове состояния
                                 if((sost[sig_bayt]&(1<<sig_bit)))
                                 {
                                     sost[sig_bayt] &= ~(1<<sig_bit); 

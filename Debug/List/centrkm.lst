@@ -1,18 +1,18 @@
 
-AVRASM ver. 2.1.30  F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm Tue Nov 17 17:34:52 2015
+AVRASM ver. 2.1.30  D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm Tue Nov 17 20:56:28 2015
 
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1090): warning: Register r3 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1091): warning: Register r4 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1092): warning: Register r5 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1093): warning: Register r6 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1094): warning: Register r8 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1095): warning: Register r7 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1096): warning: Register r10 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1097): warning: Register r9 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1098): warning: Register r12 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1099): warning: Register r11 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1100): warning: Register r14 already defined by the .DEF directive
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1101): warning: Register r13 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1090): warning: Register r3 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1091): warning: Register r4 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1092): warning: Register r5 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1093): warning: Register r6 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1094): warning: Register r8 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1095): warning: Register r7 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1096): warning: Register r10 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1097): warning: Register r9 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1098): warning: Register r12 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1099): warning: Register r11 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1100): warning: Register r14 already defined by the .DEF directive
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1101): warning: Register r13 already defined by the .DEF directive
                  
                  
                  ;CodeVisionAVR C Compiler V3.12 Advanced
@@ -1365,12 +1365,12 @@ F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1101): warning: Register r1
 0000fd 636e      	.DB  0x72,0x6F,0x72,0x20,0x53,0x79,0x6E,0x63
 0000fe 2121
 0000ff 2021
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1200): warning: .cseg .db misalignment - padding zero byte
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1200): warning: .cseg .db misalignment - padding zero byte
 000100 0000      	.DB  0x21,0x21,0x21,0x20,0x0
                  _0x2000003:
 000101 c080      	.DB  0x80,0xC0
                  _0x2040003:
-F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1204): warning: .cseg .db misalignment - padding zero byte
+D:\Project\Micro\AVR\Centr_KM\Debug\List\centrkm.asm(1204): warning: .cseg .db misalignment - padding zero byte
 000102 0007      	.DB  0x7
                  
                  __GLOBAL_INI_TBL:
@@ -2315,7 +2315,7 @@ F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1204): warning: .cseg .db m
                  ; 0000 01A2 
                  ; 0000 01A3                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
 0002ea 940e 07ef 	CALL SUBOPT_0x4
-                 ; 0000 01A4                                 sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состоян ...
+                 ; 0000 01A4                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
                  ; 0000 01A5                                 lcd_gotoxy(x_dysp,y_dysp);
 0002ec 940e 07e8 	CALL SUBOPT_0x3
                  ; 0000 01A6                                 if((sost[sig_bayt]&(1<<sig_bit)))
@@ -2358,11 +2358,11 @@ F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1204): warning: .cseg .db m
 000309 9931      	SBIC 0x6,1
 00030a c02e      	RJMP _0x36
                  ; 0000 01B3                 {
-                 ; 0000 01B4                     if(++pos >  31)
+                 ; 0000 01B4                     if(++pos >  30)
 00030b 91a0 0325 	LDS  R26,_pos
 00030d 5faf      	SUBI R26,-LOW(1)
 00030e 93a0 0325 	STS  _pos,R26
-000310 32a0      	CPI  R26,LOW(0x20)
+000310 31af      	CPI  R26,LOW(0x1F)
 000311 f050      	BRLO _0x37
                  ; 0000 01B5                     {
                  ; 0000 01B6                         pos = 0;
@@ -2375,11 +2375,11 @@ F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1204): warning: .cseg .db m
 000318 e0e0      	LDI  R30,LOW(0)
 000319 93e0 0324 	STS  _y_dysp,R30
                  ; 0000 01B9                     }
-                 ; 0000 01BA                     else if(pos == 16) pos++;
+                 ; 0000 01BA                     else if(pos == 15) pos++;
 00031b c009      	RJMP _0x38
                  _0x37:
 00031c 91a0 0325 	LDS  R26,_pos
-00031e 31a0      	CPI  R26,LOW(0x10)
+00031e 30af      	CPI  R26,LOW(0xF)
 00031f f429      	BRNE _0x39
 000320 91e0 0325 	LDS  R30,_pos
 000322 5fef      	SUBI R30,-LOW(1)
@@ -2418,7 +2418,7 @@ F:\Project\Micro\AVR\Centr-KM\Debug\List\centrkm.asm(1204): warning: .cseg .db m
 00033b 940e 07e8 	CALL SUBOPT_0x3
                  ; 0000 01C7                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
 00033d 940e 07ef 	CALL SUBOPT_0x4
-                 ; 0000 01C8                                 sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состоян ...
+                 ; 0000 01C8                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
                  ; 0000 01C9                                 if((sost[sig_bayt]&(1<<sig_bit)))
 00033f 940e 080b 	CALL SUBOPT_0x5
 000341 940e 0813 	CALL SUBOPT_0x6

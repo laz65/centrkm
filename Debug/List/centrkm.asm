@@ -2098,7 +2098,7 @@ _0x2F:
 ; 0000 01A2 
 ; 0000 01A3                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
 	CALL SUBOPT_0x4
-; 0000 01A4                                 sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состоян ...
+; 0000 01A4                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
 ; 0000 01A5                                 lcd_gotoxy(x_dysp,y_dysp);
 	CALL SUBOPT_0x3
 ; 0000 01A6                                 if((sost[sig_bayt]&(1<<sig_bit)))
@@ -2141,11 +2141,11 @@ _0x30:
 	SBIC 0x6,1
 	RJMP _0x36
 ; 0000 01B3                 {
-; 0000 01B4                     if(++pos >  31)
+; 0000 01B4                     if(++pos >  30)
 	LDS  R26,_pos
 	SUBI R26,-LOW(1)
 	STS  _pos,R26
-	CPI  R26,LOW(0x20)
+	CPI  R26,LOW(0x1F)
 	BRLO _0x37
 ; 0000 01B5                     {
 ; 0000 01B6                         pos = 0;
@@ -2158,11 +2158,11 @@ _0x30:
 	LDI  R30,LOW(0)
 	STS  _y_dysp,R30
 ; 0000 01B9                     }
-; 0000 01BA                     else if(pos == 16) pos++;
+; 0000 01BA                     else if(pos == 15) pos++;
 	RJMP _0x38
 _0x37:
 	LDS  R26,_pos
-	CPI  R26,LOW(0x10)
+	CPI  R26,LOW(0xF)
 	BRNE _0x39
 	LDS  R30,_pos
 	SUBI R30,-LOW(1)
@@ -2201,7 +2201,7 @@ _0x36:
 	CALL SUBOPT_0x3
 ; 0000 01C7                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
 	CALL SUBOPT_0x4
-; 0000 01C8                                 sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состоян ...
+; 0000 01C8                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
 ; 0000 01C9                                 if((sost[sig_bayt]&(1<<sig_bit)))
 	CALL SUBOPT_0x5
 	CALL SUBOPT_0x6
