@@ -32,6 +32,8 @@ Data Stack size         : 512
 #define zvuk PORTD.5
 #define vyh_t0 DDRD.6
 #define kn1 PINC.0
+#define kn2 PINC.1
+#define kn3 PINC.2
 #define shim OCR2B
 
 
@@ -54,7 +56,7 @@ flash unsigned char sinus[] = {130,133,136,139,143,146,149,152,155,158,161,164,1
 44,46,49,51,54,56,59,62,64,67,70,73,76,78,81,84,87,90,93,96,99,102,105,108,111,115,118,121,124,127};
 
 unsigned int ton1,a;
-unsigned char z, n, s435, period, per_old, per_new, i, sig_bayt, sig_bit, sost[32];
+unsigned char z, n, s435, period, per_old, per_new, i, sig_bayt, sig_bit, sost[32], page, p10, x_dysp, y_dysp, pos;
 unsigned long time;
 bit flag435, trevoga, pit_ok, sinc_err, pit_err, fix, nagh;
 
@@ -209,8 +211,8 @@ PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<
 // Port C initialization
 // Function: Bit6=In Bit5=In Bit4=In Bit3=In Bit2=In Bit1=In Bit0=In 
 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (0<<DDC3) | (0<<DDC2) | (0<<DDC1) | (0<<DDC0);
-// State: Bit6=T Bit5=T Bit4=T Bit3=T Bit2=T Bit1=T Bit0=P
-PORTC=(0<<PORTC6) | (0<<PORTC5) | (0<<PORTC4) | (0<<PORTC3) | (0<<PORTC2) | (0<<PORTC1) | (1<<PORTC0);
+// State: Bit6=T Bit5=T Bit4=T Bit3=T Bit2=P Bit1=P Bit0=P
+PORTC=(0<<PORTC6) | (0<<PORTC5) | (0<<PORTC4) | (0<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
 
 // Port D initialization
 // Function: Bit7=In Bit6=In Bit5=Out Bit4=Out Bit3=Out Bit2=Out Bit1=In Bit0=In 
@@ -367,12 +369,9 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
 //PORTD.4 = 0;
 //PORTD.2 = 1;
 #asm("sei")
+OCR2B=0x00; // выключение преобразователя
 
 for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
-
-
-
-
 
     while (1)
     {   
@@ -392,13 +391,80 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                 }
                 else
                 {
-                    fix = 1;         // включить фиксацию
+                    fix = 1;         // включить фиксацию  
+                    page = (i / 32) * 32; // на какой странице зафиксировано    
+                    pos = 0;
+                    x_dysp = 5;
+                    y_dysp = 0;
                     lcd_putchar('F');  
                 }
 
             }               
             
-          }      
+          }    
+          if(fix) 
+          { 
+            if(p10++ == 0)
+            { 
+            // отображение подч
+  
+                    lcd_gotoxy(x_dysp,y_dysp);   
+                    lcd_putchar('_'); 
+             
+            }
+            if(p10 == 8)
+            {
+                // отображение текущего состояние точки n
+            
+                                sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния                 
+                                sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
+                                lcd_gotoxy(x_dysp,y_dysp); 
+                                if((sost[sig_bayt]&(1<<sig_bit)))
+                                {
+                                     if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255); 
+                                     else  lcd_putchar('.'); 
+                                } else lcd_putchar(' ');
+                    
+             
+            }
+            if(p10 > 16)
+            {
+                p10 = 0;
+
+                if(!kn2)
+                {      
+                    if(++pos >  31) 
+                    {
+                        pos = 0;
+                        x_dysp = 3;
+                        y_dysp = 0;
+                    } 
+                    else if(pos == 16) pos++;
+                    x_dysp++;
+                    if(++x_dysp > 15) 
+                    {
+                        y_dysp++;
+                        x_dysp = 1;
+                    } 
+                    
+                } 
+                if(!kn3)
+                {    
+                    // включение - выключение охраны   
+                    lcd_gotoxy(x_dysp,y_dysp); 
+                                if((sost[sig_bayt]&(1<<sig_bit)))
+                                {
+                                    sost[sig_bayt] &= ~(1<<sig_bit); 
+                                    lcd_putchar(' ');
+                                } else 
+                                {   
+                                    sost[sig_bayt] |= (1<<sig_bit); 
+                                    lcd_putchar('.');
+                                }
+                    ;
+                }  
+            }
+          }
           sig_bayt = i / 4;    // текущий байт в слове состояния                 
           sig_bit = (i - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
           TCCR0B |= (1<<CS00);  // включить таймер 0;
@@ -439,17 +505,7 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                                 } else lcd_putchar(' ');
                             }
                         }  
-                    } else 
-                    {   
-                       lcd_gotoxy(3,0);                         
-                        if(!kn1)  
-                        {
-                            fix = 0;
-                            lcd_putchar(' ');
-                        }                                           
-                        else lcd_putchar('F');
-                           
-                    }
+                    } 
                     pit_ok = 1;
                     break;
                 case 15:
@@ -463,12 +519,27 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                     zvuk = 1;
                     break;
                 default:
-                    if (sost[sig_bayt]&(1<<sig_bit)) // если объекм был по охраной тревога
-                    {   
-                        sost[sig_bayt] |= (1<<(sig_bit+1));
-                        trevoga = 1;  
-                        zvuk = 1;
-                    }
+                    if (sost[sig_bayt]&(1<<sig_bit))
+                    {    
+                        while(time < 12); // 
+                        flag435 = 0;
+                        while(time < 18);                                                                // если объекм был по охраной тревога
+                        if (flag435) 
+                        {
+                            sost[sig_bayt] |= (1<<(sig_bit+1));
+                            trevoga = 1;  
+                            zvuk = 1;
+                        }
+                        else   // если обект под охраной и короткий звук, нужно поставить под охрану.
+                        {
+                            OCR2B=0x80; // выдача на шим
+                            vyh_plus = 1;
+                        }
+                            while(time<375)  
+                            vyh_plus = 0;
+                            OCR2B=0x00;
+                    } 
+
             } 
           } 
           else      // если не было ответа
@@ -574,8 +645,8 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
             pit_ok = 0;       
           }               
           
-          if (trevoga) while (time < 375);
-          trevoga = 0;         
+//          if (trevoga) //while (time < 375);
+//          trevoga = 0;         
           if (sinc_err)  
           {
             sinc_err = 0;  
