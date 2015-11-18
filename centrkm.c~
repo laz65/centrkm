@@ -361,7 +361,9 @@ TCCR0B &= ~(1<<CS00);
 procfreq = 16000000 ;
 ton1 = fdel(1080);
 
-for (n = 0; n < 32; n++) esost[n] = 7; 
+
+
+
 
 for (n = 0; n < 32; n++) sost[n] = esost[n]; 
 //PORTD.4 = 1;
@@ -371,13 +373,36 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
 #asm("sei")
 OCR2B=0x00; // выключение преобразователя
 
+          time = 0;
+          while (time < 700) #asm("wdr");  // задержка 25 мСек
+
+ OCR2B=0x50; // выключение преобразователя
+
+          time = 0;
+          while (time < 700) #asm("wdr");  // задержка 25 мСек
+
+OCR2B=0x50; // выключение преобразователя
+
+          time = 0;
+          while (time < 700) #asm("wdr");  // задержка 25 мСек
+
+OCR2B=0xB0; // выключение преобразователя
+
+          time = 0;
+          while (time < 700) #asm("wdr");  // задержка 25 мСек
+
+
+OCR2B=0x01; // выключение преобразователя
+
+
+
 for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
 
     while (1)
     {   
       for (i = 0 ; i < 128 ; i++)
       {     
-          if(kn1) nagh = 0;  // сброс флага нажатия при отпущеной кнопке      
+          if(kn1&kn3) nagh = 0;  // сброс флага нажатия при отпущеной кнопке      
           if(!kn1) 
           {
             if(!nagh)  // если кнопка только-что нажата 
@@ -392,7 +417,10 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                 else
                 {
                     fix = 1;         // включить фиксацию  
-                    page = (i / 32) * 32; // на какой странице зафиксировано    
+                    page = (i / 32); // на какой странице зафиксировано    
+                    if (page == 0) page = 4; 
+                    page--;
+                    page *= 32;
                     pos = 0;
                     x_dysp = 5;
                     y_dysp = 0;
@@ -450,20 +478,23 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                 } 
                 if(!kn3)
                 {    
-                    // включение - выключение охраны   
+                    if(!nagh)  // если кнопка только-что нажата 
+                    {            
+                    nagh = 1;
+                     // включение - выключение охраны   
                     lcd_gotoxy(x_dysp,y_dysp); 
                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния                 
-                                sig_bit = (pos + page - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
+                                sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове состояния
                                 if((sost[sig_bayt]&(1<<sig_bit)))
                                 {
-                                    sost[sig_bayt] &= ~(1<<sig_bit); 
+                                    sost[sig_bayt] &= ~(1<<sig_bit);     // выкл. охрану
                                     lcd_putchar(' ');
                                 } else 
                                 {   
-                                    sost[sig_bayt] |= (1<<sig_bit); 
+                                    sost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
                                     lcd_putchar('.');
                                 }
-                    ;
+                    }
                 }  
             }
           }
@@ -472,15 +503,15 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
           TCCR0B |= (1<<CS00);  // включить таймер 0;
           vyh_t0 = 1;  // переключить на выход 
           time = 0;
-          while (time < 6);  // задержка 25 мСек
+          while (time < 6) #asm("wdr");  // задержка 25 мСек
           zvuk = 0;  
-          if(i == 0) while (time < 75); // если первый шаг, задержка 300 мСек
+          if(i == 0) while (time < 75) #asm("wdr"); // если первый шаг, задержка 300 мСек
           OCR0B=127;
           vyh_t0 = 0;            // переключить а вход 
           TCCR0B &= ~(1<<CS00);    // выкл таймер 0              
           ACSR |= (1<<ACIE); // включить перывания от компарат   
           time = 0;
-          while (time < 6);    // 25мСек
+          while (time < 9) #asm("wdr");    // 25мСек + 12
           ACSR &= ~(1<<ACIE); // выкл прер компар  
           if (flag435) // если был отлет 435 Гц
           { 
@@ -508,7 +539,8 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                             }
                         }  
                     } 
-                    pit_ok = 1;
+                    pit_ok = 1;      
+                    while (time < 125) #asm("wdr");  // задержка до 0.5 сек
                     break;
                 case 15:
                 case 47: 
@@ -521,26 +553,37 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                     zvuk = 1;
                     break;
                 default:
-                    if (sost[sig_bayt]&(1<<sig_bit))
+                    if (sost[sig_bayt]&(1<<sig_bit))   // если под охраной
                     {    
-                        while(time < 12); // 
-                        flag435 = 0;
-                        while(time < 18);                                                                // если объекм был по охраной тревога
-                        if (flag435) 
+                        if ((esost[sig_bayt]&(1<<sig_bit) == 0))
                         {
+                            //если не был под охр. поставить под охрану.
+                            OCR2B=0x80; // выдача на шим
+                            vyh_plus = 1;       
+                            esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
+                        }
+                        else
+                        {
+                        // если объекм был по охраной тревога
                             sost[sig_bayt] |= (1<<(sig_bit+1));
                             trevoga = 1;  
                             zvuk = 1;
                         }
-                        else   // если обект под охраной и короткий звук, нужно поставить под охрану.
-                        {
-                            OCR2B=0x80; // выдача на шим
-                            vyh_plus = 1;
-                        }
-                            while(time<375)  
-                            vyh_plus = 0;
-                            OCR2B=0x00;
+                        while(time<375) #asm("wdr");  
+                        vyh_plus = 0;
+                        OCR2B=0x00;                 
                     } 
+                    else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
+                    {
+                            //если был под охр. снять с охр.
+                            OCR2B=0x80; // выдача на шим
+                            vyh_minus = 1;       
+                            esost[sig_bayt] &= ~(1<<sig_bit);      // 
+                            while(time<375) #asm("wdr");  
+                            vyh_minus = 0;
+                            OCR2B=0x00;                 
+                        
+                    }
 
             } 
           } 
@@ -548,14 +591,16 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
           { 
             switch (i)
             {
-                case 31:  
+                case 31: 
+                    // вкл питание
+                     
                     if (!fix)
                     {
                         clear_lcd(); 
                         lcd_gotoxy(0,1);
                         lcd_putsf("Error Pitanie!!!");
                     } 
-
+                    
                     pit_err = 1;
                     pit_ok = 0;
                     break;   
@@ -628,7 +673,7 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                             }
                         }  
                     } 
-                    for(n=0;n<31;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
+//                    for(n=0;n<32;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
                     break;
                 case 15: 
                 case 47: 
@@ -636,14 +681,30 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                 case 111: 
                     break;
                 default:
-                    if ((sost[sig_bayt]&(1<<sig_bit)) == 0) zvuk = 1; // звук если нет ответа от номера не под охраной
+                    if ((sost[sig_bayt]&(1<<sig_bit)) == 0) 
+                    {
+                                           
+                        if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
+                        {
+                            //если был под охр. снять с охр.
+                            OCR2B=0x80; // выдача на шим
+                            vyh_minus = 1;       
+                            esost[sig_bayt] &= ~(1<<sig_bit);      // 
+                            while(time<375) #asm("wdr");  
+                            vyh_minus = 0;
+                            OCR2B=0x00;                 
+
+                        } 
+                        else  zvuk = 1; // звук если нет ответа от номера не под охраной
+                    } 
+                       
             } 
              
           } 
           flag435 = 0;             
           if (pit_ok)
           { 
-            while (time < 125);
+            while (time < 125) #asm("wdr");
             pit_ok = 0;       
           }               
           
