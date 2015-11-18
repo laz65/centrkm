@@ -28,7 +28,11 @@ PageIndex0=0
 EditorPanel1=0
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 TimeStamp1=1198671304
+=======
+TimeStamp1=1198630670
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 =======
 TimeStamp1=1198630670
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
@@ -535,7 +539,11 @@ ScrollPosY=0
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 TimeStamp=1198671351
+=======
+TimeStamp=1198630684
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 =======
 TimeStamp=1198630684
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
@@ -553,11 +561,19 @@ F2=C:\cvavr\inc\alcd.h
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 TimeStamp=1198671304
 Row=441
 Column=45
 ScrollPosX=0
 ScrollPosY=413
+=======
+TimeStamp=1198630670
+Row=470
+Column=55
+ScrollPosX=0
+ScrollPosY=448
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 =======
 TimeStamp=1198630670
 Row=470
@@ -637,9 +653,12 @@ Line4=612
 Blocks=4
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 [FoldedCode1]
 Blocks=0
+=======
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 =======
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 =======
