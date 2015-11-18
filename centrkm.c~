@@ -73,7 +73,7 @@ interrupt [TIM0_OVF] void timer0_ovf_isr(void)
 // Place your code here
 a = a + ton1;      // Формирование синусоиды (форма в массиве sinus)
 z = a>>8 ;
-OCR0B=sinus[z];
+OCR0A=sinus[z];
 
 }
 
@@ -274,7 +274,7 @@ TCCR2A=(0<<COM2A1) | (0<<COM2A0) | (1<<COM2B1) | (0<<COM2B0) | (1<<WGM21) | (1<<
 TCCR2B=(0<<WGM22) | (0<<CS22) | (0<<CS21) | (1<<CS20);
 TCNT2=0x00;
 OCR2A=0x00;
-OCR2B=0x80;
+OCR2B=0x00;
 
 // Timer/Counter 0 Interrupt(s) initialization
 TIMSK0=(0<<OCIE0B) | (0<<OCIE0A) | (1<<TOIE0);
@@ -354,7 +354,7 @@ ACSR |= (1<<ACIE); // включить перывания от компарат
 ACSR &= ~(1<<ACIE); // выкл прер компар
 
 vyh_t0 = 0;             // выкл таймер 0
-TCCR0B &= ~(1<<CS00); 
+TCCR0A &= ~(1<<CS00); 
 
 
 
@@ -371,29 +371,31 @@ for (n = 0; n < 32; n++) sost[n] = esost[n];
 //PORTD.4 = 0;
 //PORTD.2 = 1;
 #asm("sei")
+//vyh_plus = 1;
 OCR2B=0x00; // выключение преобразователя
-
-          time = 0;
-          while (time < 700) #asm("wdr");  // задержка 25 мСек
-
- OCR2B=0x50; // выключение преобразователя
-
-          time = 0;
-          while (time < 700) #asm("wdr");  // задержка 25 мСек
-
-OCR2B=0x50; // выключение преобразователя
-
-          time = 0;
-          while (time < 700) #asm("wdr");  // задержка 25 мСек
-
-OCR2B=0xB0; // выключение преобразователя
-
-          time = 0;
-          while (time < 700) #asm("wdr");  // задержка 25 мСек
-
-
-OCR2B=0x01; // выключение преобразователя
-
+//          time = 0;
+//          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+//
+// OCR2B=0x50; // выключение преобразователя
+//
+//          time = 0;
+//          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+//
+//OCR2B=0x50; // выключение преобразователя
+//
+//          time = 0;
+//          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+// vyh_plus = 0;
+// vyh_minus = 1;
+//
+//OCR2B=0xB0; // выключение преобразователя
+//
+//          time = 0;
+//          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+//
+//
+//OCR2B=0xFF; // выключение преобразователя
+//
 
 
 for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
@@ -499,16 +501,21 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
             }
           }
           sig_bayt = i / 4;    // текущий байт в слове состояния                 
-          sig_bit = (i - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
-          TCCR0B |= (1<<CS00);  // включить таймер 0;
-          vyh_t0 = 1;  // переключить на выход 
+          sig_bit = (i - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния               
+          OCR0A=0x00;
+          a = 49728;  
+          TCCR0A |= (1<<CS00);  // включить таймер 0;
+          vyh_t0 = 1;            // переключить а вyход 
+          TIMSK0 |= (1<<TOIE0); // 
           time = 0;
           while (time < 6) #asm("wdr");  // задержка 25 мСек
           zvuk = 0;  
           if(i == 0) while (time < 75) #asm("wdr"); // если первый шаг, задержка 300 мСек
-          OCR0B=127;
+          TIMSK0 &= ~(1<<TOIE0); // 
+          OCR0A=0x00;
+          a = 49728;  
+          TCCR0A &= ~(1<<CS00);    // выкл таймер 0                       
           vyh_t0 = 0;            // переключить а вход 
-          TCCR0B &= ~(1<<CS00);    // выкл таймер 0              
           ACSR |= (1<<ACIE); // включить перывания от компарат   
           time = 0;
           while (time < 9) #asm("wdr");    // 25мСек + 12
@@ -558,7 +565,7 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                         if ((esost[sig_bayt]&(1<<sig_bit) == 0))
                         {
                             //если не был под охр. поставить под охрану.
-                            OCR2B=0x80; // выдача на шим
+                            OCR2B=0x50; // выдача на шим
                             vyh_plus = 1;       
                             esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
                         }
@@ -571,17 +578,17 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                         }
                         while(time<375) #asm("wdr");  
                         vyh_plus = 0;
-                        OCR2B=0x00;                 
+                        OCR2B=0xFF;                 
                     } 
                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
                     {
                             //если был под охр. снять с охр.
-                            OCR2B=0x80; // выдача на шим
+                            OCR2B=0xB0; // выдача на шим
                             vyh_minus = 1;       
                             esost[sig_bayt] &= ~(1<<sig_bit);      // 
                             while(time<375) #asm("wdr");  
                             vyh_minus = 0;
-                            OCR2B=0x00;                 
+                            OCR2B=0xFF;                 
                         
                     }
 
@@ -687,12 +694,12 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                         if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
                         {
                             //если был под охр. снять с охр.
-                            OCR2B=0x80; // выдача на шим
+                            OCR2B=0xB0; // выдача на шим
                             vyh_minus = 1;       
                             esost[sig_bayt] &= ~(1<<sig_bit);      // 
                             while(time<375) #asm("wdr");  
                             vyh_minus = 0;
-                            OCR2B=0x00;                 
+                            OCR2B=0xFF;                 
 
                         } 
                         else  zvuk = 1; // звук если нет ответа от номера не под охраной

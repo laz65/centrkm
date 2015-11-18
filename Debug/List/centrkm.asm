@@ -1394,13 +1394,13 @@ _timer0_ovf_isr:
 	__ADDWRR 5,6,3,4
 ; 0000 004B z = a>>8 ;
 	MOV  R8,R6
-; 0000 004C OCR0B=sinus[z];
+; 0000 004C OCR0A=sinus[z];
 	MOV  R30,R8
 	LDI  R31,0
 	SUBI R30,LOW(-_sinus*2)
 	SBCI R31,HIGH(-_sinus*2)
 	LPM  R0,Z
-	OUT  0x28,R0
+	OUT  0x27,R0
 ; 0000 004D 
 ; 0000 004E }
 	LD   R30,Y+
@@ -1463,12 +1463,12 @@ _ana_comp_isr:
 	BRSH _0x3
 	MOV  R30,R11
 	SUB  R30,R12
-	RJMP _0x101
+	RJMP _0xF5
 _0x3:
 	LDI  R30,LOW(255)
 	SUB  R30,R12
 	ADD  R30,R11
-_0x101:
+_0xF5:
 	MOV  R9,R30
 ; 0000 005F     if ((period > 0x80)&&(period < 0xA0)) //если период соответствует частоте 435 Гц
 	LDI  R30,LOW(128)
@@ -1795,8 +1795,7 @@ _main:
 	STS  178,R30
 ; 0000 0114 OCR2A=0x00;
 	STS  179,R30
-; 0000 0115 OCR2B=0x80;
-	LDI  R30,LOW(128)
+; 0000 0115 OCR2B=0x00;
 	STS  180,R30
 ; 0000 0116 
 ; 0000 0117 // Timer/Counter 0 Interrupt(s) initialization
@@ -1932,10 +1931,10 @@ _main:
 ; 0000 0163 
 ; 0000 0164 vyh_t0 = 0;             // выкл таймер 0
 	CBI  0xA,6
-; 0000 0165 TCCR0B &= ~(1<<CS00);
-	IN   R30,0x25
+; 0000 0165 TCCR0A &= ~(1<<CS00);
+	IN   R30,0x24
 	ANDI R30,0xFE
-	OUT  0x25,R30
+	OUT  0x24,R30
 ; 0000 0166 
 ; 0000 0167 
 ; 0000 0168 
@@ -1966,87 +1965,57 @@ _0x13:
 _0x14:
 ; 0000 0175 #asm("sei")
 	sei
-; 0000 0176 OCR2B=0x00; // выключение преобразователя
+; 0000 0176 //vyh_plus = 1;
+; 0000 0177 OCR2B=0x00; // выключение преобразователя
 	LDI  R30,LOW(0)
-	CALL SUBOPT_0x2
-; 0000 0177 
-; 0000 0178           time = 0;
-; 0000 0179           while (time < 700) #asm("wdr");  // задержка 25 мСек
-_0x15:
-	CALL SUBOPT_0x3
-	BRSH _0x17
-	wdr
-; 0000 017A 
-; 0000 017B  OCR2B=0x50; // выключение преобразователя
-	RJMP _0x15
-_0x17:
-	LDI  R30,LOW(80)
-	CALL SUBOPT_0x2
-; 0000 017C 
-; 0000 017D           time = 0;
-; 0000 017E           while (time < 700) #asm("wdr");  // задержка 25 мСек
-_0x18:
-	CALL SUBOPT_0x3
-	BRSH _0x1A
-	wdr
-; 0000 017F 
-; 0000 0180 OCR2B=0x50; // выключение преобразователя
-	RJMP _0x18
-_0x1A:
-	LDI  R30,LOW(80)
-	CALL SUBOPT_0x2
-; 0000 0181 
-; 0000 0182           time = 0;
-; 0000 0183           while (time < 700) #asm("wdr");  // задержка 25 мСек
-_0x1B:
-	CALL SUBOPT_0x3
-	BRSH _0x1D
-	wdr
-; 0000 0184 
-; 0000 0185 OCR2B=0xB0; // выключение преобразователя
-	RJMP _0x1B
-_0x1D:
-	LDI  R30,LOW(176)
-	CALL SUBOPT_0x2
-; 0000 0186 
-; 0000 0187           time = 0;
-; 0000 0188           while (time < 700) #asm("wdr");  // задержка 25 мСек
-_0x1E:
-	CALL SUBOPT_0x3
-	BRSH _0x20
-	wdr
-; 0000 0189 
-; 0000 018A 
-; 0000 018B OCR2B=0xFF; // выключение преобразователя
-	RJMP _0x1E
-_0x20:
-	LDI  R30,LOW(255)
 	STS  180,R30
-; 0000 018C 
-; 0000 018D 
-; 0000 018E 
-; 0000 018F for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
+; 0000 0178 //          time = 0;
+; 0000 0179 //          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+; 0000 017A //
+; 0000 017B // OCR2B=0x50; // выключение преобразователя
+; 0000 017C //
+; 0000 017D //          time = 0;
+; 0000 017E //          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+; 0000 017F //
+; 0000 0180 //OCR2B=0x50; // выключение преобразователя
+; 0000 0181 //
+; 0000 0182 //          time = 0;
+; 0000 0183 //          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+; 0000 0184 // vyh_plus = 0;
+; 0000 0185 // vyh_minus = 1;
+; 0000 0186 //
+; 0000 0187 //OCR2B=0xB0; // выключение преобразователя
+; 0000 0188 //
+; 0000 0189 //          time = 0;
+; 0000 018A //          while (time < 1000) #asm("wdr");  // задержка 25 мСек
+; 0000 018B //
+; 0000 018C //
+; 0000 018D //OCR2B=0xFF; // выключение преобразователя
+; 0000 018E //
+; 0000 018F 
+; 0000 0190 
+; 0000 0191 for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
 	CLR  R7
-_0x22:
+_0x16:
 	LDI  R30,LOW(31)
 	CP   R7,R30
-	BRSH _0x23
+	BRSH _0x17
 	CALL SUBOPT_0x1
 	INC  R7
-	RJMP _0x22
-_0x23:
-; 0000 0191 while (1)
-_0x24:
-; 0000 0192     {
-; 0000 0193       for (i = 0 ; i < 128 ; i++)
+	RJMP _0x16
+_0x17:
+; 0000 0193 while (1)
+_0x18:
+; 0000 0194     {
+; 0000 0195       for (i = 0 ; i < 128 ; i++)
 	CLR  R14
-_0x28:
+_0x1C:
 	LDI  R30,LOW(128)
 	CP   R14,R30
 	BRLO PC+2
-	RJMP _0x29
-; 0000 0194       {
-; 0000 0195           if(kn1&kn3) nagh = 0;  // сброс флага нажатия при отпущеной кнопке
+	RJMP _0x1D
+; 0000 0196       {
+; 0000 0197           if(kn1&kn3) nagh = 0;  // сброс флага нажатия при отпущеной кнопке
 	LDI  R26,0
 	SBIC 0x6,0
 	LDI  R26,1
@@ -2054,264 +2023,264 @@ _0x28:
 	SBIC 0x6,2
 	LDI  R30,1
 	AND  R30,R26
-	BREQ _0x2A
+	BREQ _0x1E
 	CBI  0x1E,6
-; 0000 0196           if(!kn1)
-_0x2A:
+; 0000 0198           if(!kn1)
+_0x1E:
 	SBIC 0x6,0
-	RJMP _0x2D
-; 0000 0197           {
-; 0000 0198             if(!nagh)  // если кнопка только-что нажата
+	RJMP _0x21
+; 0000 0199           {
+; 0000 019A             if(!nagh)  // если кнопка только-что нажата
 	SBIC 0x1E,6
-	RJMP _0x2E
-; 0000 0199             {
-; 0000 019A                 nagh = 1;
+	RJMP _0x22
+; 0000 019B             {
+; 0000 019C                 nagh = 1;
 	SBI  0x1E,6
-; 0000 019B                 lcd_gotoxy(3,0);
+; 0000 019D                 lcd_gotoxy(3,0);
 	LDI  R30,LOW(3)
 	ST   -Y,R30
 	LDI  R26,LOW(0)
 	CALL _lcd_gotoxy
-; 0000 019C                 if (fix)
+; 0000 019E                 if (fix)
 	SBIS 0x1E,5
-	RJMP _0x31
-; 0000 019D                 {
-; 0000 019E                     fix  = 0;         // если была включена фиксация, - выключить
+	RJMP _0x25
+; 0000 019F                 {
+; 0000 01A0                     fix  = 0;         // если была включена фиксация, - выключить
 	CBI  0x1E,5
-; 0000 019F                     lcd_putchar(' ');
+; 0000 01A1                     lcd_putchar(' ');
 	LDI  R26,LOW(32)
-	RJMP _0x102
-; 0000 01A0                 }
-; 0000 01A1                 else
-_0x31:
-; 0000 01A2                 {
-; 0000 01A3                     fix = 1;         // включить фиксацию
+	RJMP _0xF6
+; 0000 01A2                 }
+; 0000 01A3                 else
+_0x25:
+; 0000 01A4                 {
+; 0000 01A5                     fix = 1;         // включить фиксацию
 	SBI  0x1E,5
-; 0000 01A4                     page = (i / 32); // на какой странице зафиксировано
+; 0000 01A6                     page = (i / 32); // на какой странице зафиксировано
 	MOV  R26,R14
 	LDI  R27,0
 	LDI  R30,LOW(32)
 	LDI  R31,HIGH(32)
 	CALL __DIVW21
 	STS  _page,R30
-; 0000 01A5                     if (page == 0) page = 4;
+; 0000 01A7                     if (page == 0) page = 4;
 	CPI  R30,0
-	BRNE _0x37
+	BRNE _0x2B
 	LDI  R30,LOW(4)
 	STS  _page,R30
-; 0000 01A6                     page--;
-_0x37:
+; 0000 01A8                     page--;
+_0x2B:
 	LDS  R30,_page
 	SUBI R30,LOW(1)
 	STS  _page,R30
-; 0000 01A7                     page *= 32;
+; 0000 01A9                     page *= 32;
 	LDI  R26,LOW(32)
 	MULS R30,R26
 	MOVW R30,R0
 	STS  _page,R30
-; 0000 01A8                     pos = 0;
+; 0000 01AA                     pos = 0;
 	LDI  R30,LOW(0)
 	STS  _pos,R30
-; 0000 01A9                     x_dysp = 5;
+; 0000 01AB                     x_dysp = 5;
 	LDI  R30,LOW(5)
 	STS  _x_dysp,R30
-; 0000 01AA                     y_dysp = 0;
+; 0000 01AC                     y_dysp = 0;
 	LDI  R30,LOW(0)
 	STS  _y_dysp,R30
-; 0000 01AB                     lcd_putchar('F');
+; 0000 01AD                     lcd_putchar('F');
 	LDI  R26,LOW(70)
-_0x102:
+_0xF6:
 	CALL _lcd_putchar
-; 0000 01AC                 }
-; 0000 01AD 
-; 0000 01AE             }
+; 0000 01AE                 }
 ; 0000 01AF 
-; 0000 01B0           }
-_0x2E:
-; 0000 01B1           if(fix)
-_0x2D:
+; 0000 01B0             }
+; 0000 01B1 
+; 0000 01B2           }
+_0x22:
+; 0000 01B3           if(fix)
+_0x21:
 	SBIS 0x1E,5
-	RJMP _0x38
-; 0000 01B2           {
-; 0000 01B3             if(p10++ == 0)
+	RJMP _0x2C
+; 0000 01B4           {
+; 0000 01B5             if(p10++ == 0)
 	LDS  R30,_p10
 	SUBI R30,-LOW(1)
 	STS  _p10,R30
 	SUBI R30,LOW(1)
-	BRNE _0x39
-; 0000 01B4             {
-; 0000 01B5             // отображение подч
-; 0000 01B6 
-; 0000 01B7                     lcd_gotoxy(x_dysp,y_dysp);
-	CALL SUBOPT_0x4
-; 0000 01B8                     lcd_putchar('_');
+	BRNE _0x2D
+; 0000 01B6             {
+; 0000 01B7             // отображение подч
+; 0000 01B8 
+; 0000 01B9                     lcd_gotoxy(x_dysp,y_dysp);
+	CALL SUBOPT_0x2
+; 0000 01BA                     lcd_putchar('_');
 	LDI  R26,LOW(95)
 	CALL _lcd_putchar
-; 0000 01B9 
-; 0000 01BA             }
-; 0000 01BB             if(p10 == 8)
-_0x39:
+; 0000 01BB 
+; 0000 01BC             }
+; 0000 01BD             if(p10 == 8)
+_0x2D:
 	LDS  R26,_p10
 	CPI  R26,LOW(0x8)
-	BRNE _0x3A
-; 0000 01BC             {
-; 0000 01BD                 // отображение текущего состояние точки n
-; 0000 01BE 
-; 0000 01BF                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
-	CALL SUBOPT_0x5
-; 0000 01C0                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
-; 0000 01C1                                 lcd_gotoxy(x_dysp,y_dysp);
+	BRNE _0x2E
+; 0000 01BE             {
+; 0000 01BF                 // отображение текущего состояние точки n
+; 0000 01C0 
+; 0000 01C1                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
+	CALL SUBOPT_0x3
+; 0000 01C2                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
+; 0000 01C3                                 lcd_gotoxy(x_dysp,y_dysp);
+	CALL SUBOPT_0x2
+; 0000 01C4                                 if((sost[sig_bayt]&(1<<sig_bit)))
 	CALL SUBOPT_0x4
-; 0000 01C2                                 if((sost[sig_bayt]&(1<<sig_bit)))
+	CALL SUBOPT_0x5
+	BREQ _0x2F
+; 0000 01C5                                 {
+; 0000 01C6                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+	CALL SUBOPT_0x4
 	CALL SUBOPT_0x6
-	CALL SUBOPT_0x7
-	BREQ _0x3B
-; 0000 01C3                                 {
-; 0000 01C4                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
-	CALL SUBOPT_0x6
-	CALL SUBOPT_0x8
-	BREQ _0x3C
+	BREQ _0x30
 	LDI  R26,LOW(255)
-	RJMP _0x103
-; 0000 01C5                                      else  lcd_putchar('.');
-_0x3C:
+	RJMP _0xF7
+; 0000 01C7                                      else  lcd_putchar('.');
+_0x30:
 	LDI  R26,LOW(46)
-_0x103:
+_0xF7:
 	CALL _lcd_putchar
-; 0000 01C6                                 } else lcd_putchar(' ');
-	RJMP _0x3E
-_0x3B:
+; 0000 01C8                                 } else lcd_putchar(' ');
+	RJMP _0x32
+_0x2F:
 	LDI  R26,LOW(32)
 	CALL _lcd_putchar
-; 0000 01C7 
-; 0000 01C8 
-; 0000 01C9             }
-_0x3E:
-; 0000 01CA             if(p10 > 16)
-_0x3A:
+; 0000 01C9 
+; 0000 01CA 
+; 0000 01CB             }
+_0x32:
+; 0000 01CC             if(p10 > 16)
+_0x2E:
 	LDS  R26,_p10
 	CPI  R26,LOW(0x11)
 	BRSH PC+2
-	RJMP _0x3F
-; 0000 01CB             {
-; 0000 01CC                 p10 = 0;
+	RJMP _0x33
+; 0000 01CD             {
+; 0000 01CE                 p10 = 0;
 	LDI  R30,LOW(0)
 	STS  _p10,R30
-; 0000 01CD 
-; 0000 01CE                 if(!kn2)
+; 0000 01CF 
+; 0000 01D0                 if(!kn2)
 	SBIC 0x6,1
-	RJMP _0x40
-; 0000 01CF                 {
-; 0000 01D0                     if(++pos >  30)
+	RJMP _0x34
+; 0000 01D1                 {
+; 0000 01D2                     if(++pos >  30)
 	LDS  R26,_pos
 	SUBI R26,-LOW(1)
 	STS  _pos,R26
 	CPI  R26,LOW(0x1F)
-	BRLO _0x41
-; 0000 01D1                     {
-; 0000 01D2                         pos = 0;
+	BRLO _0x35
+; 0000 01D3                     {
+; 0000 01D4                         pos = 0;
 	LDI  R30,LOW(0)
 	STS  _pos,R30
-; 0000 01D3                         x_dysp = 3;
+; 0000 01D5                         x_dysp = 3;
 	LDI  R30,LOW(3)
 	STS  _x_dysp,R30
-; 0000 01D4                         y_dysp = 0;
+; 0000 01D6                         y_dysp = 0;
 	LDI  R30,LOW(0)
 	STS  _y_dysp,R30
-; 0000 01D5                     }
-; 0000 01D6                     else if(pos == 15) pos++;
-	RJMP _0x42
-_0x41:
+; 0000 01D7                     }
+; 0000 01D8                     else if(pos == 15) pos++;
+	RJMP _0x36
+_0x35:
 	LDS  R26,_pos
 	CPI  R26,LOW(0xF)
-	BRNE _0x43
+	BRNE _0x37
 	LDS  R30,_pos
 	SUBI R30,-LOW(1)
 	STS  _pos,R30
-; 0000 01D7                     x_dysp++;
-_0x43:
-_0x42:
+; 0000 01D9                     x_dysp++;
+_0x37:
+_0x36:
 	LDS  R30,_x_dysp
 	SUBI R30,-LOW(1)
 	STS  _x_dysp,R30
-; 0000 01D8                     if(++x_dysp > 15)
+; 0000 01DA                     if(++x_dysp > 15)
 	LDS  R26,_x_dysp
 	SUBI R26,-LOW(1)
 	STS  _x_dysp,R26
 	CPI  R26,LOW(0x10)
-	BRLO _0x44
-; 0000 01D9                     {
-; 0000 01DA                         y_dysp++;
+	BRLO _0x38
+; 0000 01DB                     {
+; 0000 01DC                         y_dysp++;
 	LDS  R30,_y_dysp
 	SUBI R30,-LOW(1)
 	STS  _y_dysp,R30
-; 0000 01DB                         x_dysp = 1;
+; 0000 01DD                         x_dysp = 1;
 	LDI  R30,LOW(1)
 	STS  _x_dysp,R30
-; 0000 01DC                     }
-; 0000 01DD 
-; 0000 01DE                 }
-_0x44:
-; 0000 01DF                 if(!kn3)
-_0x40:
+; 0000 01DE                     }
+; 0000 01DF 
+; 0000 01E0                 }
+_0x38:
+; 0000 01E1                 if(!kn3)
+_0x34:
 	SBIC 0x6,2
-	RJMP _0x45
-; 0000 01E0                 {
-; 0000 01E1                     if(!nagh)  // если кнопка только-что нажата
+	RJMP _0x39
+; 0000 01E2                 {
+; 0000 01E3                     if(!nagh)  // если кнопка только-что нажата
 	SBIC 0x1E,6
-	RJMP _0x46
-; 0000 01E2                     {
-; 0000 01E3                     nagh = 1;
+	RJMP _0x3A
+; 0000 01E4                     {
+; 0000 01E5                     nagh = 1;
 	SBI  0x1E,6
-; 0000 01E4                      // включение - выключение охраны
-; 0000 01E5                     lcd_gotoxy(x_dysp,y_dysp);
+; 0000 01E6                      // включение - выключение охраны
+; 0000 01E7                     lcd_gotoxy(x_dysp,y_dysp);
+	CALL SUBOPT_0x2
+; 0000 01E8                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
+	CALL SUBOPT_0x3
+; 0000 01E9                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
+; 0000 01EA                                 if((sost[sig_bayt]&(1<<sig_bit)))
 	CALL SUBOPT_0x4
-; 0000 01E6                                 sig_bayt = (pos+page) / 4;    // текущий байт в слове состояния
 	CALL SUBOPT_0x5
-; 0000 01E7                                 sig_bit = ((pos + page) - (sig_bayt * 4)) * 2;   // текущая двухбитовая пара в слове сос ...
-; 0000 01E8                                 if((sost[sig_bayt]&(1<<sig_bit)))
-	CALL SUBOPT_0x6
+	BREQ _0x3D
+; 0000 01EB                                 {
+; 0000 01EC                                     sost[sig_bayt] &= ~(1<<sig_bit);     // выкл. охрану
 	CALL SUBOPT_0x7
-	BREQ _0x49
-; 0000 01E9                                 {
-; 0000 01EA                                     sost[sig_bayt] &= ~(1<<sig_bit);     // выкл. охрану
-	CALL SUBOPT_0x9
 	COM  R30
 	AND  R30,R1
 	MOVW R26,R22
 	ST   X,R30
-; 0000 01EB                                     lcd_putchar(' ');
+; 0000 01ED                                     lcd_putchar(' ');
 	LDI  R26,LOW(32)
-	RJMP _0x104
-; 0000 01EC                                 } else
-_0x49:
-; 0000 01ED                                 {
-; 0000 01EE                                     sost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
-	CALL SUBOPT_0x9
+	RJMP _0xF8
+; 0000 01EE                                 } else
+_0x3D:
+; 0000 01EF                                 {
+; 0000 01F0                                     sost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
+	CALL SUBOPT_0x7
 	OR   R30,R1
 	MOVW R26,R22
 	ST   X,R30
-; 0000 01EF                                     lcd_putchar('.');
+; 0000 01F1                                     lcd_putchar('.');
 	LDI  R26,LOW(46)
-_0x104:
+_0xF8:
 	CALL _lcd_putchar
-; 0000 01F0                                 }
-; 0000 01F1                     }
-; 0000 01F2                 }
-_0x46:
-; 0000 01F3             }
-_0x45:
-; 0000 01F4           }
-_0x3F:
-; 0000 01F5           sig_bayt = i / 4;    // текущий байт в слове состояния
-_0x38:
+; 0000 01F2                                 }
+; 0000 01F3                     }
+; 0000 01F4                 }
+_0x3A:
+; 0000 01F5             }
+_0x39:
+; 0000 01F6           }
+_0x33:
+; 0000 01F7           sig_bayt = i / 4;    // текущий байт в слове состояния
+_0x2C:
 	MOV  R26,R14
 	LDI  R27,0
 	LDI  R30,LOW(4)
 	LDI  R31,HIGH(4)
 	CALL __DIVW21
 	MOV  R13,R30
-; 0000 01F6           sig_bit = (i - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
+; 0000 01F8           sig_bit = (i - sig_bayt * 4) * 2;   // текущая двухбитовая пара в слове состояния
 	LSL  R30
 	LSL  R30
 	MOV  R26,R30
@@ -2319,236 +2288,245 @@ _0x38:
 	SUB  R30,R26
 	LSL  R30
 	STS  _sig_bit,R30
-; 0000 01F7           TCCR0B |= (1<<CS00);  // включить таймер 0;
-	IN   R30,0x25
+; 0000 01F9           OCR0A=0x00;
+	CALL SUBOPT_0x8
+; 0000 01FA           a = 49728;
+; 0000 01FB           TCCR0A |= (1<<CS00);  // включить таймер 0;
 	ORI  R30,1
-	OUT  0x25,R30
-; 0000 01F8           vyh_t0 = 1;  // переключить на выход
-	SBI  0xA,6
-; 0000 01F9           time = 0;
+	OUT  0x24,R30
+; 0000 01FC           TIMSK0 |= (1<<TOIE0); //
+	LDS  R30,110
+	ORI  R30,1
+	STS  110,R30
+; 0000 01FD           time = 0;
+	CALL SUBOPT_0x9
+; 0000 01FE           while (time < 6) #asm("wdr");  // задержка 25 мСек
+_0x3F:
 	CALL SUBOPT_0xA
-; 0000 01FA           while (time < 6) #asm("wdr");  // задержка 25 мСек
-_0x4D:
-	CALL SUBOPT_0xB
 	__CPD2N 0x6
-	BRSH _0x4F
+	BRSH _0x41
 	wdr
-; 0000 01FB           zvuk = 0;
-	RJMP _0x4D
-_0x4F:
+; 0000 01FF           zvuk = 0;
+	RJMP _0x3F
+_0x41:
 	CBI  0xB,5
-; 0000 01FC           if(i == 0) while (time < 75) #asm("wdr"); // если первый шаг, задержка 300 мСек
+; 0000 0200           if(i == 0) while (time < 75) #asm("wdr"); // если первый шаг, задержка 300 мСек
 	TST  R14
-	BRNE _0x52
-_0x53:
-	CALL SUBOPT_0xB
+	BRNE _0x44
+_0x45:
+	CALL SUBOPT_0xA
 	__CPD2N 0x4B
-	BRSH _0x55
+	BRSH _0x47
 	wdr
-; 0000 01FD           OCR0B=127;
-	RJMP _0x53
-_0x55:
-_0x52:
-	LDI  R30,LOW(127)
-	OUT  0x28,R30
-; 0000 01FE           vyh_t0 = 0;            // переключить а вход
-	CBI  0xA,6
-; 0000 01FF           TCCR0B &= ~(1<<CS00);    // выкл таймер 0
-	IN   R30,0x25
+; 0000 0201           TIMSK0 &= ~(1<<TOIE0); //
+	RJMP _0x45
+_0x47:
+_0x44:
+	LDS  R30,110
 	ANDI R30,0xFE
-	OUT  0x25,R30
-; 0000 0200           ACSR |= (1<<ACIE); // включить перывания от компарат
+	STS  110,R30
+; 0000 0202           OCR0A=0x00;
+	CALL SUBOPT_0x8
+; 0000 0203           a = 49728;
+; 0000 0204           TCCR0A &= ~(1<<CS00);    // выкл таймер 0
+	ANDI R30,0xFE
+	OUT  0x24,R30
+; 0000 0205           vyh_t0 = 0;            // переключить а вход
+	CBI  0xA,6
+; 0000 0206           ACSR |= (1<<ACIE); // включить перывания от компарат
 	IN   R30,0x30
 	ORI  R30,8
 	OUT  0x30,R30
-; 0000 0201           time = 0;
+; 0000 0207           time = 0;
+	CALL SUBOPT_0x9
+; 0000 0208           while (time < 9) #asm("wdr");    // 25мСек + 12
+_0x4A:
 	CALL SUBOPT_0xA
-; 0000 0202           while (time < 9) #asm("wdr");    // 25мСек + 12
-_0x58:
-	CALL SUBOPT_0xB
 	__CPD2N 0x9
-	BRSH _0x5A
+	BRSH _0x4C
 	wdr
-; 0000 0203           ACSR &= ~(1<<ACIE); // выкл прер компар
-	RJMP _0x58
-_0x5A:
+; 0000 0209           ACSR &= ~(1<<ACIE); // выкл прер компар
+	RJMP _0x4A
+_0x4C:
 	IN   R30,0x30
 	ANDI R30,0XF7
 	OUT  0x30,R30
-; 0000 0204           if (flag435) // если был отлет 435 Гц
+; 0000 020A           vyh_t0 = 1;            // переключить а вyход
+	SBI  0xA,6
+; 0000 020B           if (flag435) // если был отлет 435 Гц
 	SBIS 0x1E,0
-	RJMP _0x5B
-; 0000 0205           {
-; 0000 0206             switch (i)
+	RJMP _0x4F
+; 0000 020C           {
+; 0000 020D             switch (i)
 	MOV  R30,R14
 	LDI  R31,0
-; 0000 0207             {
-; 0000 0208                 case 31:
+; 0000 020E             {
+; 0000 020F                 case 31:
 	CPI  R30,LOW(0x1F)
 	LDI  R26,HIGH(0x1F)
 	CPC  R31,R26
 	BREQ PC+2
-	RJMP _0x5F
-; 0000 0209                     // вывод первой половины на дисп
-; 0000 020A                     if (!fix)
+	RJMP _0x53
+; 0000 0210                     // вывод первой половины на дисп
+; 0000 0211                     if (!fix)
 	SBIC 0x1E,5
-	RJMP _0x60
-; 0000 020B                     {
-; 0000 020C                         clear_lcd();
-	CALL SUBOPT_0xC
-; 0000 020D                         lcd_gotoxy(0,0);
-; 0000 020E                         lcd_putsf("1   ");
+	RJMP _0x54
+; 0000 0212                     {
+; 0000 0213                         clear_lcd();
+	CALL SUBOPT_0xB
+; 0000 0214                         lcd_gotoxy(0,0);
+; 0000 0215                         lcd_putsf("1   ");
 	__POINTW2FN _0x0,79
-	CALL SUBOPT_0xD
-; 0000 020F                         n = 1;
-; 0000 0210                         for (sig_bayt = 0; sig_bayt < 8 ; sig_bayt++)
+	CALL SUBOPT_0xC
+; 0000 0216                         n = 1;
+; 0000 0217                         for (sig_bayt = 0; sig_bayt < 8 ; sig_bayt++)
 	CLR  R13
-_0x62:
+_0x56:
 	LDI  R30,LOW(8)
 	CP   R13,R30
-	BRSH _0x63
-; 0000 0211                         {
-; 0000 0212                             for(sig_bit = 0; (sig_bayt == 3 || sig_bayt == 7)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
+	BRSH _0x57
+; 0000 0218                         {
+; 0000 0219                             for(sig_bit = 0; (sig_bayt == 3 || sig_bayt == 7)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 	LDI  R30,LOW(0)
 	STS  _sig_bit,R30
-_0x65:
+_0x59:
 	LDI  R30,LOW(3)
 	CP   R30,R13
-	BREQ _0x67
+	BREQ _0x5B
 	LDI  R30,LOW(7)
 	CP   R30,R13
-	BRNE _0x69
-_0x67:
+	BRNE _0x5D
+_0x5B:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(6)
-	RJMP _0x105
-_0x69:
+	RJMP _0xF9
+_0x5D:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(8)
-_0x105:
+_0xF9:
 	CALL __LTB12U
 	CPI  R30,0
-	BREQ _0x66
-; 0000 0213                             {
-; 0000 0214                                 if(++n>10) n = 1;
+	BREQ _0x5A
+; 0000 021A                             {
+; 0000 021B                                 if(++n>10) n = 1;
 	INC  R7
 	LDI  R30,LOW(10)
 	CP   R30,R7
-	BRSH _0x6C
+	BRSH _0x60
 	LDI  R30,LOW(1)
 	MOV  R7,R30
-; 0000 0215                                 lcd_putchar(47+n);
-_0x6C:
-	CALL SUBOPT_0xE
-; 0000 0216                                 if((sost[sig_bayt]&(1<<sig_bit)))
-	CALL SUBOPT_0x7
-	BREQ _0x6D
-; 0000 0217                                 {
-; 0000 0218                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+; 0000 021C                                 lcd_putchar(47+n);
+_0x60:
+	CALL SUBOPT_0xD
+; 0000 021D                                 if((sost[sig_bayt]&(1<<sig_bit)))
+	CALL SUBOPT_0x5
+	BREQ _0x61
+; 0000 021E                                 {
+; 0000 021F                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+	CALL SUBOPT_0x4
 	CALL SUBOPT_0x6
-	CALL SUBOPT_0x8
-	BREQ _0x6E
+	BREQ _0x62
 	LDI  R26,LOW(255)
-	RJMP _0x106
-; 0000 0219                                      else  lcd_putchar('.');
-_0x6E:
+	RJMP _0xFA
+; 0000 0220                                      else  lcd_putchar('.');
+_0x62:
 	LDI  R26,LOW(46)
-_0x106:
+_0xFA:
 	CALL _lcd_putchar
-; 0000 021A                                 } else lcd_putchar(' ');
-	RJMP _0x70
-_0x6D:
+; 0000 0221                                 } else lcd_putchar(' ');
+	RJMP _0x64
+_0x61:
 	LDI  R26,LOW(32)
 	CALL _lcd_putchar
-; 0000 021B                             }
-_0x70:
-	CALL SUBOPT_0xF
-	RJMP _0x65
-_0x66:
-; 0000 021C                         }
+; 0000 0222                             }
+_0x64:
+	CALL SUBOPT_0xE
+	RJMP _0x59
+_0x5A:
+; 0000 0223                         }
 	INC  R13
-	RJMP _0x62
-_0x63:
-; 0000 021D                     }
-; 0000 021E                     pit_ok = 1;
-_0x60:
+	RJMP _0x56
+_0x57:
+; 0000 0224                     }
+; 0000 0225                     pit_ok = 1;
+_0x54:
 	SBI  0x1E,2
-; 0000 021F                     while (time < 125) #asm("wdr");  // задержка до 0.5 сек
-_0x73:
-	CALL SUBOPT_0x10
-	BRSH _0x75
+; 0000 0226                     while (time < 125) #asm("wdr");  // задержка до 0.5 сек
+_0x67:
+	CALL SUBOPT_0xF
+	BRSH _0x69
 	wdr
-; 0000 0220                     break;
-	RJMP _0x73
-_0x75:
-	RJMP _0x5E
-; 0000 0221                 case 15:
-_0x5F:
+; 0000 0227                     break;
+	RJMP _0x67
+_0x69:
+	RJMP _0x52
+; 0000 0228                 case 15:
+_0x53:
 	CPI  R30,LOW(0xF)
 	LDI  R26,HIGH(0xF)
 	CPC  R31,R26
-	BREQ _0x77
-; 0000 0222                 case 47:
+	BREQ _0x6B
+; 0000 0229                 case 47:
 	CPI  R30,LOW(0x2F)
 	LDI  R26,HIGH(0x2F)
 	CPC  R31,R26
-	BRNE _0x78
-_0x77:
-; 0000 0223                 case 63:
-	RJMP _0x79
-_0x78:
+	BRNE _0x6C
+_0x6B:
+; 0000 022A                 case 63:
+	RJMP _0x6D
+_0x6C:
 	CPI  R30,LOW(0x3F)
 	LDI  R26,HIGH(0x3F)
 	CPC  R31,R26
-	BRNE _0x7A
-_0x79:
-; 0000 0224                 case 79:
-	RJMP _0x7B
-_0x7A:
+	BRNE _0x6E
+_0x6D:
+; 0000 022B                 case 79:
+	RJMP _0x6F
+_0x6E:
 	CPI  R30,LOW(0x4F)
 	LDI  R26,HIGH(0x4F)
 	CPC  R31,R26
-	BRNE _0x7C
-_0x7B:
-; 0000 0225                 case 95:
-	RJMP _0x7D
-_0x7C:
+	BRNE _0x70
+_0x6F:
+; 0000 022C                 case 95:
+	RJMP _0x71
+_0x70:
 	CPI  R30,LOW(0x5F)
 	LDI  R26,HIGH(0x5F)
 	CPC  R31,R26
-	BRNE _0x7E
-_0x7D:
-; 0000 0226                 case 111:
-	RJMP _0x7F
-_0x7E:
+	BRNE _0x72
+_0x71:
+; 0000 022D                 case 111:
+	RJMP _0x73
+_0x72:
 	CPI  R30,LOW(0x6F)
 	LDI  R26,HIGH(0x6F)
 	CPC  R31,R26
-	BRNE _0x80
-_0x7F:
-; 0000 0227                 case 127:
-	RJMP _0x81
-_0x80:
+	BRNE _0x74
+_0x73:
+; 0000 022E                 case 127:
+	RJMP _0x75
+_0x74:
 	CPI  R30,LOW(0x7F)
 	LDI  R26,HIGH(0x7F)
 	CPC  R31,R26
-	BRNE _0x87
-_0x81:
-; 0000 0228                     sinc_err = 1;      // ошибка синхронизации
+	BRNE _0x7B
+_0x75:
+; 0000 022F                     sinc_err = 1;      // ошибка синхронизации
 	SBI  0x1E,3
-; 0000 0229                     zvuk = 1;
+; 0000 0230                     zvuk = 1;
 	SBI  0xB,5
-; 0000 022A                     break;
-	RJMP _0x5E
-; 0000 022B                 default:
-_0x87:
-; 0000 022C                     if (sost[sig_bayt]&(1<<sig_bit))   // если под охраной
-	CALL SUBOPT_0x6
-	CALL SUBOPT_0x7
-	BREQ _0x88
-; 0000 022D                     {
-; 0000 022E                         if ((esost[sig_bayt]&(1<<sig_bit) == 0))
-	CALL SUBOPT_0x11
+; 0000 0231                     break;
+	RJMP _0x52
+; 0000 0232                 default:
+_0x7B:
+; 0000 0233                     if (sost[sig_bayt]&(1<<sig_bit))   // если под охраной
+	CALL SUBOPT_0x4
+	CALL SUBOPT_0x5
+	BREQ _0x7C
+; 0000 0234                     {
+; 0000 0235                         if ((esost[sig_bayt]&(1<<sig_bit) == 0))
+	CALL SUBOPT_0x10
 	LDI  R26,LOW(1)
 	LDI  R27,HIGH(1)
 	CALL __LSLW12
@@ -2556,26 +2534,26 @@ _0x87:
 	LDI  R27,HIGH(0)
 	CALL __EQW12
 	AND  R30,R1
-	BREQ _0x89
-; 0000 022F                         {
-; 0000 0230                             //если не был под охр. поставить под охрану.
-; 0000 0231                             OCR2B=0x80; // выдача на шим
-	LDI  R30,LOW(128)
+	BREQ _0x7D
+; 0000 0236                         {
+; 0000 0237                             //если не был под охр. поставить под охрану.
+; 0000 0238                             OCR2B=0x50; // выдача на шим
+	LDI  R30,LOW(80)
 	STS  180,R30
-; 0000 0232                             vyh_plus = 1;
+; 0000 0239                             vyh_plus = 1;
 	SBI  0xB,4
-; 0000 0233                             esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
-	CALL SUBOPT_0x12
+; 0000 023A                             esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
+	CALL SUBOPT_0x11
 	OR   R30,R1
 	MOVW R26,R22
 	CALL __EEPROMWRB
-; 0000 0234                         }
-; 0000 0235                         else
-	RJMP _0x8C
-_0x89:
-; 0000 0236                         {
-; 0000 0237                         // если объекм был по охраной тревога
-; 0000 0238                             sost[sig_bayt] |= (1<<(sig_bit+1));
+; 0000 023B                         }
+; 0000 023C                         else
+	RJMP _0x80
+_0x7D:
+; 0000 023D                         {
+; 0000 023E                         // если объекм был по охраной тревога
+; 0000 023F                             sost[sig_bayt] |= (1<<(sig_bit+1));
 	MOV  R30,R13
 	LDI  R31,0
 	SUBI R30,LOW(-_sost)
@@ -2589,514 +2567,514 @@ _0x89:
 	OR   R30,R1
 	MOVW R26,R22
 	ST   X,R30
-; 0000 0239                             trevoga = 1;
+; 0000 0240                             trevoga = 1;
 	SBI  0x1E,1
-; 0000 023A                             zvuk = 1;
+; 0000 0241                             zvuk = 1;
 	SBI  0xB,5
-; 0000 023B                         }
-_0x8C:
-; 0000 023C                         while(time<375) #asm("wdr");
-_0x91:
-	CALL SUBOPT_0x13
-	BRSH _0x93
+; 0000 0242                         }
+_0x80:
+; 0000 0243                         while(time<375) #asm("wdr");
+_0x85:
+	CALL SUBOPT_0x12
+	BRSH _0x87
 	wdr
-; 0000 023D                         vyh_plus = 0;
-	RJMP _0x91
-_0x93:
+; 0000 0244                         vyh_plus = 0;
+	RJMP _0x85
+_0x87:
 	CBI  0xB,4
-; 0000 023E                         OCR2B=0x00;
-	RJMP _0x107
-; 0000 023F                     }
-; 0000 0240                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
-_0x88:
-	CALL SUBOPT_0x11
-	CALL SUBOPT_0x7
-	BREQ _0x97
-; 0000 0241                     {
-; 0000 0242                             //если был под охр. снять с охр.
-; 0000 0243                             OCR2B=0x80; // выдача на шим
-	CALL SUBOPT_0x14
-; 0000 0244                             vyh_minus = 1;
-; 0000 0245                             esost[sig_bayt] &= ~(1<<sig_bit);      //
+; 0000 0245                         OCR2B=0xFF;
+	RJMP _0xFB
+; 0000 0246                     }
+; 0000 0247                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
+_0x7C:
+	CALL SUBOPT_0x10
+	CALL SUBOPT_0x5
+	BREQ _0x8B
+; 0000 0248                     {
+; 0000 0249                             //если был под охр. снять с охр.
+; 0000 024A                             OCR2B=0xB0; // выдача на шим
+	CALL SUBOPT_0x13
+; 0000 024B                             vyh_minus = 1;
+; 0000 024C                             esost[sig_bayt] &= ~(1<<sig_bit);      //
 	COM  R30
 	AND  R30,R1
 	MOVW R26,R22
 	CALL __EEPROMWRB
-; 0000 0246                             while(time<375) #asm("wdr");
-_0x9A:
-	CALL SUBOPT_0x13
-	BRSH _0x9C
+; 0000 024D                             while(time<375) #asm("wdr");
+_0x8E:
+	CALL SUBOPT_0x12
+	BRSH _0x90
 	wdr
-; 0000 0247                             vyh_minus = 0;
-	RJMP _0x9A
-_0x9C:
+; 0000 024E                             vyh_minus = 0;
+	RJMP _0x8E
+_0x90:
 	CBI  0xB,2
-; 0000 0248                             OCR2B=0x00;
-_0x107:
-	LDI  R30,LOW(0)
+; 0000 024F                             OCR2B=0xFF;
+_0xFB:
+	LDI  R30,LOW(255)
 	STS  180,R30
-; 0000 0249 
-; 0000 024A                     }
-; 0000 024B 
-; 0000 024C             }
-_0x97:
-_0x5E:
-; 0000 024D           }
-; 0000 024E           else      // если не было ответа
-	RJMP _0x9F
-_0x5B:
-; 0000 024F           {
-; 0000 0250             switch (i)
+; 0000 0250 
+; 0000 0251                     }
+; 0000 0252 
+; 0000 0253             }
+_0x8B:
+_0x52:
+; 0000 0254           }
+; 0000 0255           else      // если не было ответа
+	RJMP _0x93
+_0x4F:
+; 0000 0256           {
+; 0000 0257             switch (i)
 	MOV  R30,R14
 	LDI  R31,0
-; 0000 0251             {
-; 0000 0252                 case 31:
+; 0000 0258             {
+; 0000 0259                 case 31:
 	CPI  R30,LOW(0x1F)
 	LDI  R26,HIGH(0x1F)
 	CPC  R31,R26
-	BRNE _0xA3
-; 0000 0253                     // вкл питание
-; 0000 0254 
-; 0000 0255                     if (!fix)
+	BRNE _0x97
+; 0000 025A                     // вкл питание
+; 0000 025B 
+; 0000 025C                     if (!fix)
 	SBIC 0x1E,5
-	RJMP _0xA4
-; 0000 0256                     {
-; 0000 0257                         clear_lcd();
-	CALL SUBOPT_0x15
-; 0000 0258                         lcd_gotoxy(0,1);
-; 0000 0259                         lcd_putsf("Error Pitanie!!!");
+	RJMP _0x98
+; 0000 025D                     {
+; 0000 025E                         clear_lcd();
+	CALL SUBOPT_0x14
+; 0000 025F                         lcd_gotoxy(0,1);
+; 0000 0260                         lcd_putsf("Error Pitanie!!!");
 	__POINTW2FN _0x0,84
 	CALL _lcd_putsf
-; 0000 025A                     }
-; 0000 025B 
-; 0000 025C                     pit_err = 1;
-_0xA4:
+; 0000 0261                     }
+; 0000 0262 
+; 0000 0263                     pit_err = 1;
+_0x98:
 	SBI  0x1E,4
-; 0000 025D                     pit_ok = 0;
+; 0000 0264                     pit_ok = 0;
 	CBI  0x1E,2
-; 0000 025E                     break;
-	RJMP _0xA2
-; 0000 025F                 case 63:
-_0xA3:
+; 0000 0265                     break;
+	RJMP _0x96
+; 0000 0266                 case 63:
+_0x97:
 	CPI  R30,LOW(0x3F)
 	LDI  R26,HIGH(0x3F)
 	CPC  R31,R26
 	BREQ PC+2
-	RJMP _0xA9
-; 0000 0260                     // вывод второй половины на дисп
-; 0000 0261                     if (!fix)
+	RJMP _0x9D
+; 0000 0267                     // вывод второй половины на дисп
+; 0000 0268                     if (!fix)
 	SBIC 0x1E,5
-	RJMP _0xAA
-; 0000 0262                     {
-; 0000 0263                         clear_lcd();
-	CALL SUBOPT_0xC
-; 0000 0264                         lcd_gotoxy(0,0);
-; 0000 0265                         lcd_putsf("31  ");
+	RJMP _0x9E
+; 0000 0269                     {
+; 0000 026A                         clear_lcd();
+	CALL SUBOPT_0xB
+; 0000 026B                         lcd_gotoxy(0,0);
+; 0000 026C                         lcd_putsf("31  ");
 	__POINTW2FN _0x0,101
-	CALL SUBOPT_0xD
-; 0000 0266                         n = 1;
-; 0000 0267                         for (sig_bayt = 8; sig_bayt < 16 ; sig_bayt++)
+	CALL SUBOPT_0xC
+; 0000 026D                         n = 1;
+; 0000 026E                         for (sig_bayt = 8; sig_bayt < 16 ; sig_bayt++)
 	LDI  R30,LOW(8)
 	MOV  R13,R30
-_0xAC:
+_0xA0:
 	LDI  R30,LOW(16)
 	CP   R13,R30
-	BRSH _0xAD
-; 0000 0268                         {
-; 0000 0269                             for(sig_bit = 0; (sig_bayt == 11 || sig_bayt == 15)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
+	BRSH _0xA1
+; 0000 026F                         {
+; 0000 0270                             for(sig_bit = 0; (sig_bayt == 11 || sig_bayt == 15)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 	LDI  R30,LOW(0)
 	STS  _sig_bit,R30
-_0xAF:
+_0xA3:
 	LDI  R30,LOW(11)
 	CP   R30,R13
-	BREQ _0xB1
+	BREQ _0xA5
 	LDI  R30,LOW(15)
 	CP   R30,R13
-	BRNE _0xB3
-_0xB1:
+	BRNE _0xA7
+_0xA5:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(6)
-	RJMP _0x108
-_0xB3:
+	RJMP _0xFC
+_0xA7:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(8)
-_0x108:
+_0xFC:
 	CALL __LTB12U
 	CPI  R30,0
-	BREQ _0xB0
-; 0000 026A                             {
-; 0000 026B                                 if(++n>10) n = 1;
+	BREQ _0xA4
+; 0000 0271                             {
+; 0000 0272                                 if(++n>10) n = 1;
 	INC  R7
 	LDI  R30,LOW(10)
 	CP   R30,R7
-	BRSH _0xB6
+	BRSH _0xAA
 	LDI  R30,LOW(1)
 	MOV  R7,R30
-; 0000 026C                                 lcd_putchar(47+n);
-_0xB6:
-	CALL SUBOPT_0xE
-; 0000 026D                                 if((sost[sig_bayt]&(1<<sig_bit)))
-	CALL SUBOPT_0x7
-	BREQ _0xB7
-; 0000 026E                                 {
-; 0000 026F                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+; 0000 0273                                 lcd_putchar(47+n);
+_0xAA:
+	CALL SUBOPT_0xD
+; 0000 0274                                 if((sost[sig_bayt]&(1<<sig_bit)))
+	CALL SUBOPT_0x5
+	BREQ _0xAB
+; 0000 0275                                 {
+; 0000 0276                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+	CALL SUBOPT_0x4
 	CALL SUBOPT_0x6
-	CALL SUBOPT_0x8
-	BREQ _0xB8
+	BREQ _0xAC
 	LDI  R26,LOW(255)
-	RJMP _0x109
-; 0000 0270                                      else  lcd_putchar('.');
-_0xB8:
+	RJMP _0xFD
+; 0000 0277                                      else  lcd_putchar('.');
+_0xAC:
 	LDI  R26,LOW(46)
-_0x109:
+_0xFD:
 	CALL _lcd_putchar
-; 0000 0271                                 } else lcd_putchar(' ');
-	RJMP _0xBA
-_0xB7:
+; 0000 0278                                 } else lcd_putchar(' ');
+	RJMP _0xAE
+_0xAB:
 	LDI  R26,LOW(32)
 	CALL _lcd_putchar
-; 0000 0272                             }
-_0xBA:
-	CALL SUBOPT_0xF
-	RJMP _0xAF
-_0xB0:
-; 0000 0273                         }
+; 0000 0279                             }
+_0xAE:
+	CALL SUBOPT_0xE
+	RJMP _0xA3
+_0xA4:
+; 0000 027A                         }
 	INC  R13
-	RJMP _0xAC
-_0xAD:
-; 0000 0274                     }
-; 0000 0275 
-; 0000 0276                     break;
-_0xAA:
-	RJMP _0xA2
-; 0000 0277                 case 95:
-_0xA9:
+	RJMP _0xA0
+_0xA1:
+; 0000 027B                     }
+; 0000 027C 
+; 0000 027D                     break;
+_0x9E:
+	RJMP _0x96
+; 0000 027E                 case 95:
+_0x9D:
 	CPI  R30,LOW(0x5F)
 	LDI  R26,HIGH(0x5F)
 	CPC  R31,R26
-	BRNE _0xBB
-; 0000 0278                     // вывод третьей половины на дисп
-; 0000 0279                     if (!fix)
+	BRNE _0xAF
+; 0000 027F                     // вывод третьей половины на дисп
+; 0000 0280                     if (!fix)
 	SBIC 0x1E,5
-	RJMP _0xBC
-; 0000 027A                     {
-; 0000 027B                         clear_lcd();
-	CALL SUBOPT_0xC
-; 0000 027C                         lcd_gotoxy(0,0);
-; 0000 027D                         lcd_putsf("61  ");
+	RJMP _0xB0
+; 0000 0281                     {
+; 0000 0282                         clear_lcd();
+	CALL SUBOPT_0xB
+; 0000 0283                         lcd_gotoxy(0,0);
+; 0000 0284                         lcd_putsf("61  ");
 	__POINTW2FN _0x0,106
-	CALL SUBOPT_0xD
-; 0000 027E                         n = 1;
-; 0000 027F                         for (sig_bayt = 16; sig_bayt < 24 ; sig_bayt++)
+	CALL SUBOPT_0xC
+; 0000 0285                         n = 1;
+; 0000 0286                         for (sig_bayt = 16; sig_bayt < 24 ; sig_bayt++)
 	LDI  R30,LOW(16)
 	MOV  R13,R30
-_0xBE:
+_0xB2:
 	LDI  R30,LOW(24)
 	CP   R13,R30
-	BRSH _0xBF
-; 0000 0280                         {
-; 0000 0281                             for(sig_bit = 0; (sig_bayt == 19 || sig_bayt == 23)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
+	BRSH _0xB3
+; 0000 0287                         {
+; 0000 0288                             for(sig_bit = 0; (sig_bayt == 19 || sig_bayt == 23)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 	LDI  R30,LOW(0)
 	STS  _sig_bit,R30
-_0xC1:
+_0xB5:
 	LDI  R30,LOW(19)
 	CP   R30,R13
-	BREQ _0xC3
+	BREQ _0xB7
 	LDI  R30,LOW(23)
 	CP   R30,R13
-	BRNE _0xC5
-_0xC3:
+	BRNE _0xB9
+_0xB7:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(6)
-	RJMP _0x10A
-_0xC5:
+	RJMP _0xFE
+_0xB9:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(8)
-_0x10A:
+_0xFE:
 	CALL __LTB12U
 	CPI  R30,0
-	BREQ _0xC2
-; 0000 0282                             {
-; 0000 0283                                 if(++n>10) n = 1;
+	BREQ _0xB6
+; 0000 0289                             {
+; 0000 028A                                 if(++n>10) n = 1;
 	INC  R7
 	LDI  R30,LOW(10)
 	CP   R30,R7
-	BRSH _0xC8
+	BRSH _0xBC
 	LDI  R30,LOW(1)
 	MOV  R7,R30
-; 0000 0284                                 lcd_putchar(47+n);
-_0xC8:
-	CALL SUBOPT_0xE
-; 0000 0285                                 if((sost[sig_bayt]&(1<<sig_bit)))
-	CALL SUBOPT_0x7
-	BREQ _0xC9
-; 0000 0286                                 {
-; 0000 0287                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+; 0000 028B                                 lcd_putchar(47+n);
+_0xBC:
+	CALL SUBOPT_0xD
+; 0000 028C                                 if((sost[sig_bayt]&(1<<sig_bit)))
+	CALL SUBOPT_0x5
+	BREQ _0xBD
+; 0000 028D                                 {
+; 0000 028E                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+	CALL SUBOPT_0x4
 	CALL SUBOPT_0x6
-	CALL SUBOPT_0x8
-	BREQ _0xCA
+	BREQ _0xBE
 	LDI  R26,LOW(255)
-	RJMP _0x10B
-; 0000 0288                                      else  lcd_putchar('.');
-_0xCA:
+	RJMP _0xFF
+; 0000 028F                                      else  lcd_putchar('.');
+_0xBE:
 	LDI  R26,LOW(46)
-_0x10B:
+_0xFF:
 	RCALL _lcd_putchar
-; 0000 0289                                 } else lcd_putchar(' ');
-	RJMP _0xCC
-_0xC9:
+; 0000 0290                                 } else lcd_putchar(' ');
+	RJMP _0xC0
+_0xBD:
 	LDI  R26,LOW(32)
 	RCALL _lcd_putchar
-; 0000 028A                             }
-_0xCC:
-	CALL SUBOPT_0xF
-	RJMP _0xC1
-_0xC2:
-; 0000 028B                         }
+; 0000 0291                             }
+_0xC0:
+	CALL SUBOPT_0xE
+	RJMP _0xB5
+_0xB6:
+; 0000 0292                         }
 	INC  R13
-	RJMP _0xBE
-_0xBF:
-; 0000 028C                     }
-; 0000 028D                     break;
-_0xBC:
-	RJMP _0xA2
-; 0000 028E                 case 127:
-_0xBB:
+	RJMP _0xB2
+_0xB3:
+; 0000 0293                     }
+; 0000 0294                     break;
+_0xB0:
+	RJMP _0x96
+; 0000 0295                 case 127:
+_0xAF:
 	CPI  R30,LOW(0x7F)
 	LDI  R26,HIGH(0x7F)
 	CPC  R31,R26
-	BRNE _0xCD
-; 0000 028F                     // вывод четвертой половины на дисп
-; 0000 0290                     if (!fix)
+	BRNE _0xC1
+; 0000 0296                     // вывод четвертой половины на дисп
+; 0000 0297                     if (!fix)
 	SBIC 0x1E,5
-	RJMP _0xCE
-; 0000 0291                     {
-; 0000 0292                         clear_lcd();
-	CALL SUBOPT_0xC
-; 0000 0293                         lcd_gotoxy(0,0);
-; 0000 0294                         lcd_putsf("91  ");
+	RJMP _0xC2
+; 0000 0298                     {
+; 0000 0299                         clear_lcd();
+	CALL SUBOPT_0xB
+; 0000 029A                         lcd_gotoxy(0,0);
+; 0000 029B                         lcd_putsf("91  ");
 	__POINTW2FN _0x0,111
-	CALL SUBOPT_0xD
-; 0000 0295                         n = 1;
-; 0000 0296                         for (sig_bayt = 24; sig_bayt < 32; sig_bayt++)
+	CALL SUBOPT_0xC
+; 0000 029C                         n = 1;
+; 0000 029D                         for (sig_bayt = 24; sig_bayt < 32; sig_bayt++)
 	LDI  R30,LOW(24)
 	MOV  R13,R30
-_0xD0:
+_0xC4:
 	LDI  R30,LOW(32)
 	CP   R13,R30
-	BRSH _0xD1
-; 0000 0297                         {
-; 0000 0298                             for(sig_bit = 0; (sig_bayt == 27 || sig_bayt == 31)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
+	BRSH _0xC5
+; 0000 029E                         {
+; 0000 029F                             for(sig_bit = 0; (sig_bayt == 27 || sig_bayt == 31)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 	LDI  R30,LOW(0)
 	STS  _sig_bit,R30
-_0xD3:
+_0xC7:
 	LDI  R30,LOW(27)
 	CP   R30,R13
-	BREQ _0xD5
+	BREQ _0xC9
 	LDI  R30,LOW(31)
 	CP   R30,R13
-	BRNE _0xD7
-_0xD5:
+	BRNE _0xCB
+_0xC9:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(6)
-	RJMP _0x10C
-_0xD7:
+	RJMP _0x100
+_0xCB:
 	LDS  R26,_sig_bit
 	LDI  R30,LOW(8)
-_0x10C:
+_0x100:
 	CALL __LTB12U
 	CPI  R30,0
-	BREQ _0xD4
-; 0000 0299                             {
-; 0000 029A                                 if(++n>10) n = 1;
+	BREQ _0xC8
+; 0000 02A0                             {
+; 0000 02A1                                 if(++n>10) n = 1;
 	INC  R7
 	LDI  R30,LOW(10)
 	CP   R30,R7
-	BRSH _0xDA
+	BRSH _0xCE
 	LDI  R30,LOW(1)
 	MOV  R7,R30
-; 0000 029B                                 lcd_putchar(47+n);
-_0xDA:
-	CALL SUBOPT_0xE
-; 0000 029C                                 if((sost[sig_bayt]&(1<<sig_bit)))
-	CALL SUBOPT_0x7
-	BREQ _0xDB
-; 0000 029D                                 {
-; 0000 029E                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+; 0000 02A2                                 lcd_putchar(47+n);
+_0xCE:
+	CALL SUBOPT_0xD
+; 0000 02A3                                 if((sost[sig_bayt]&(1<<sig_bit)))
+	CALL SUBOPT_0x5
+	BREQ _0xCF
+; 0000 02A4                                 {
+; 0000 02A5                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
+	CALL SUBOPT_0x4
 	CALL SUBOPT_0x6
-	CALL SUBOPT_0x8
-	BREQ _0xDC
+	BREQ _0xD0
 	LDI  R26,LOW(255)
-	RJMP _0x10D
-; 0000 029F                                      else  lcd_putchar('.');
-_0xDC:
+	RJMP _0x101
+; 0000 02A6                                      else  lcd_putchar('.');
+_0xD0:
 	LDI  R26,LOW(46)
-_0x10D:
+_0x101:
 	RCALL _lcd_putchar
-; 0000 02A0                                 } else lcd_putchar(' ');
-	RJMP _0xDE
-_0xDB:
+; 0000 02A7                                 } else lcd_putchar(' ');
+	RJMP _0xD2
+_0xCF:
 	LDI  R26,LOW(32)
 	RCALL _lcd_putchar
-; 0000 02A1                             }
-_0xDE:
-	CALL SUBOPT_0xF
-	RJMP _0xD3
-_0xD4:
-; 0000 02A2                         }
+; 0000 02A8                             }
+_0xD2:
+	CALL SUBOPT_0xE
+	RJMP _0xC7
+_0xC8:
+; 0000 02A9                         }
 	INC  R13
-	RJMP _0xD0
-_0xD1:
-; 0000 02A3                     }
-; 0000 02A4 //                    for(n=0;n<32;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
-; 0000 02A5                     break;
-_0xCE:
-	RJMP _0xA2
-; 0000 02A6                 case 15:
-_0xCD:
+	RJMP _0xC4
+_0xC5:
+; 0000 02AA                     }
+; 0000 02AB //                    for(n=0;n<32;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
+; 0000 02AC                     break;
+_0xC2:
+	RJMP _0x96
+; 0000 02AD                 case 15:
+_0xC1:
 	CPI  R30,LOW(0xF)
 	LDI  R26,HIGH(0xF)
 	CPC  R31,R26
-	BREQ _0xE0
-; 0000 02A7                 case 47:
+	BREQ _0xD4
+; 0000 02AE                 case 47:
 	CPI  R30,LOW(0x2F)
 	LDI  R26,HIGH(0x2F)
 	CPC  R31,R26
-	BRNE _0xE1
-_0xE0:
-; 0000 02A8                 case 79:
-	RJMP _0xE2
-_0xE1:
+	BRNE _0xD5
+_0xD4:
+; 0000 02AF                 case 79:
+	RJMP _0xD6
+_0xD5:
 	CPI  R30,LOW(0x4F)
 	LDI  R26,HIGH(0x4F)
 	CPC  R31,R26
-	BRNE _0xE3
-_0xE2:
-; 0000 02A9                 case 111:
-	RJMP _0xE4
-_0xE3:
+	BRNE _0xD7
+_0xD6:
+; 0000 02B0                 case 111:
+	RJMP _0xD8
+_0xD7:
 	CPI  R30,LOW(0x6F)
 	LDI  R26,HIGH(0x6F)
 	CPC  R31,R26
-	BRNE _0xE6
-_0xE4:
-; 0000 02AA                     break;
-	RJMP _0xA2
-; 0000 02AB                 default:
-_0xE6:
-; 0000 02AC                     if ((sost[sig_bayt]&(1<<sig_bit)) == 0)
-	CALL SUBOPT_0x6
-	CALL SUBOPT_0x7
-	BRNE _0xE7
-; 0000 02AD                     {
-; 0000 02AE 
-; 0000 02AF                         if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
-	CALL SUBOPT_0x11
-	CALL SUBOPT_0x7
-	BREQ _0xE8
-; 0000 02B0                         {
-; 0000 02B1                             //если был под охр. снять с охр.
-; 0000 02B2                             OCR2B=0x80; // выдача на шим
-	CALL SUBOPT_0x14
-; 0000 02B3                             vyh_minus = 1;
-; 0000 02B4                             esost[sig_bayt] &= ~(1<<sig_bit);      //
+	BRNE _0xDA
+_0xD8:
+; 0000 02B1                     break;
+	RJMP _0x96
+; 0000 02B2                 default:
+_0xDA:
+; 0000 02B3                     if ((sost[sig_bayt]&(1<<sig_bit)) == 0)
+	CALL SUBOPT_0x4
+	CALL SUBOPT_0x5
+	BRNE _0xDB
+; 0000 02B4                     {
+; 0000 02B5 
+; 0000 02B6                         if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
+	CALL SUBOPT_0x10
+	CALL SUBOPT_0x5
+	BREQ _0xDC
+; 0000 02B7                         {
+; 0000 02B8                             //если был под охр. снять с охр.
+; 0000 02B9                             OCR2B=0xB0; // выдача на шим
+	CALL SUBOPT_0x13
+; 0000 02BA                             vyh_minus = 1;
+; 0000 02BB                             esost[sig_bayt] &= ~(1<<sig_bit);      //
 	COM  R30
 	AND  R30,R1
 	MOVW R26,R22
 	CALL __EEPROMWRB
-; 0000 02B5                             while(time<375) #asm("wdr");
-_0xEB:
-	CALL SUBOPT_0x13
-	BRSH _0xED
+; 0000 02BC                             while(time<375) #asm("wdr");
+_0xDF:
+	CALL SUBOPT_0x12
+	BRSH _0xE1
 	wdr
-; 0000 02B6                             vyh_minus = 0;
-	RJMP _0xEB
-_0xED:
+; 0000 02BD                             vyh_minus = 0;
+	RJMP _0xDF
+_0xE1:
 	CBI  0xB,2
-; 0000 02B7                             OCR2B=0x00;
-	LDI  R30,LOW(0)
+; 0000 02BE                             OCR2B=0xFF;
+	LDI  R30,LOW(255)
 	STS  180,R30
-; 0000 02B8 
-; 0000 02B9                         }
-; 0000 02BA                         else  zvuk = 1; // звук если нет ответа от номера не под охраной
-	RJMP _0xF0
-_0xE8:
+; 0000 02BF 
+; 0000 02C0                         }
+; 0000 02C1                         else  zvuk = 1; // звук если нет ответа от номера не под охраной
+	RJMP _0xE4
+_0xDC:
 	SBI  0xB,5
-; 0000 02BB                     }
-_0xF0:
-; 0000 02BC 
-; 0000 02BD             }
-_0xE7:
-_0xA2:
-; 0000 02BE 
-; 0000 02BF           }
-_0x9F:
-; 0000 02C0           flag435 = 0;
+; 0000 02C2                     }
+_0xE4:
+; 0000 02C3 
+; 0000 02C4             }
+_0xDB:
+_0x96:
+; 0000 02C5 
+; 0000 02C6           }
+_0x93:
+; 0000 02C7           flag435 = 0;
 	CBI  0x1E,0
-; 0000 02C1           if (pit_ok)
+; 0000 02C8           if (pit_ok)
 	SBIS 0x1E,2
-	RJMP _0xF5
-; 0000 02C2           {
-; 0000 02C3             while (time < 125) #asm("wdr");
-_0xF6:
-	CALL SUBOPT_0x10
-	BRSH _0xF8
+	RJMP _0xE9
+; 0000 02C9           {
+; 0000 02CA             while (time < 125) #asm("wdr");
+_0xEA:
+	CALL SUBOPT_0xF
+	BRSH _0xEC
 	wdr
-; 0000 02C4             pit_ok = 0;
-	RJMP _0xF6
-_0xF8:
+; 0000 02CB             pit_ok = 0;
+	RJMP _0xEA
+_0xEC:
 	CBI  0x1E,2
-; 0000 02C5           }
-; 0000 02C6 
-; 0000 02C7 //          if (trevoga) //while (time < 375);
-; 0000 02C8 //          trevoga = 0;
-; 0000 02C9           if (sinc_err)
-_0xF5:
+; 0000 02CC           }
+; 0000 02CD 
+; 0000 02CE //          if (trevoga) //while (time < 375);
+; 0000 02CF //          trevoga = 0;
+; 0000 02D0           if (sinc_err)
+_0xE9:
 	SBIS 0x1E,3
-	RJMP _0xFB
-; 0000 02CA           {
-; 0000 02CB             sinc_err = 0;
+	RJMP _0xEF
+; 0000 02D1           {
+; 0000 02D2             sinc_err = 0;
 	CBI  0x1E,3
-; 0000 02CC             if (!fix)
+; 0000 02D3             if (!fix)
 	SBIC 0x1E,5
-	RJMP _0xFE
-; 0000 02CD             {
-; 0000 02CE                 clear_lcd();
-	CALL SUBOPT_0x15
-; 0000 02CF                 lcd_gotoxy(0,1);
-; 0000 02D0                 lcd_putsf("  Error Sync!!! ");
+	RJMP _0xF2
+; 0000 02D4             {
+; 0000 02D5                 clear_lcd();
+	CALL SUBOPT_0x14
+; 0000 02D6                 lcd_gotoxy(0,1);
+; 0000 02D7                 lcd_putsf("  Error Sync!!! ");
 	__POINTW2FN _0x0,116
 	RCALL _lcd_putsf
-; 0000 02D1             } else
-	RJMP _0xFF
-_0xFE:
-; 0000 02D2             {
-; 0000 02D3                 lcd_gotoxy(3,0);
+; 0000 02D8             } else
+	RJMP _0xF3
+_0xF2:
+; 0000 02D9             {
+; 0000 02DA                 lcd_gotoxy(3,0);
 	LDI  R30,LOW(3)
 	ST   -Y,R30
 	LDI  R26,LOW(0)
 	RCALL _lcd_gotoxy
-; 0000 02D4                 lcd_putchar('F');
+; 0000 02DB                 lcd_putchar('F');
 	LDI  R26,LOW(70)
 	RCALL _lcd_putchar
-; 0000 02D5             }
-_0xFF:
-; 0000 02D6             break;
-	RJMP _0x29
-; 0000 02D7           }
-; 0000 02D8       }
-_0xFB:
+; 0000 02DC             }
+_0xF3:
+; 0000 02DD             break;
+	RJMP _0x1D
+; 0000 02DE           }
+; 0000 02DF       }
+_0xEF:
 	INC  R14
-	RJMP _0x28
-_0x29:
-; 0000 02D9 
-; 0000 02DA 
-; 0000 02DB     }
-	RJMP _0x24
-; 0000 02DC 
-; 0000 02DD }
-_0x100:
-	RJMP _0x100
+	RJMP _0x1C
+_0x1D:
+; 0000 02E0 
+; 0000 02E1 
+; 0000 02E2     }
+	RJMP _0x18
+; 0000 02E3 
+; 0000 02E4 }
+_0xF4:
+	RJMP _0xF4
 ; .FEND
 ;
 	#ifndef __SLEEP_DEFINED__
@@ -3190,11 +3168,11 @@ _lcd_gotoxy:
 _lcd_clear:
 ; .FSTART _lcd_clear
 	LDI  R26,LOW(2)
-	CALL SUBOPT_0x16
+	CALL SUBOPT_0x15
 	LDI  R26,LOW(12)
 	RCALL __lcd_write_data
 	LDI  R26,LOW(1)
-	CALL SUBOPT_0x16
+	CALL SUBOPT_0x15
 	LDI  R30,LOW(0)
 	STS  __lcd_y,R30
 	STS  __lcd_x,R30
@@ -3279,9 +3257,9 @@ _lcd_init:
 	LDI  R26,LOW(20)
 	LDI  R27,0
 	CALL _delay_ms
-	CALL SUBOPT_0x17
-	CALL SUBOPT_0x17
-	CALL SUBOPT_0x17
+	CALL SUBOPT_0x16
+	CALL SUBOPT_0x16
+	CALL SUBOPT_0x16
 	LDI  R26,LOW(32)
 	RCALL __lcd_write_nibble_G100
 	__DELAY_USW 400
@@ -3839,34 +3817,15 @@ SUBOPT_0x1:
 	ST   X,R30
 	RET
 
-;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:24 WORDS
-SUBOPT_0x2:
-	STS  180,R30
-	LDI  R30,LOW(0)
-	STS  _time,R30
-	STS  _time+1,R30
-	STS  _time+2,R30
-	STS  _time+3,R30
-	RET
-
-;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:36 WORDS
-SUBOPT_0x3:
-	LDS  R26,_time
-	LDS  R27,_time+1
-	LDS  R24,_time+2
-	LDS  R25,_time+3
-	__CPD2N 0x2BC
-	RET
-
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 3 TIMES, CODE SIZE REDUCTION:7 WORDS
-SUBOPT_0x4:
+SUBOPT_0x2:
 	LDS  R30,_x_dysp
 	ST   -Y,R30
 	LDS  R26,_y_dysp
 	JMP  _lcd_gotoxy
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:22 WORDS
-SUBOPT_0x5:
+SUBOPT_0x3:
 	LDS  R26,_pos
 	CLR  R27
 	LDS  R30,_page
@@ -3891,7 +3850,7 @@ SUBOPT_0x5:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 13 TIMES, CODE SIZE REDUCTION:57 WORDS
-SUBOPT_0x6:
+SUBOPT_0x4:
 	MOV  R30,R13
 	LDI  R31,0
 	SUBI R30,LOW(-_sost)
@@ -3901,7 +3860,7 @@ SUBOPT_0x6:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 15 TIMES, CODE SIZE REDUCTION:95 WORDS
-SUBOPT_0x7:
+SUBOPT_0x5:
 	LDI  R26,LOW(1)
 	LDI  R27,HIGH(1)
 	CALL __LSLW12
@@ -3913,13 +3872,13 @@ SUBOPT_0x7:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 5 TIMES, CODE SIZE REDUCTION:5 WORDS
-SUBOPT_0x8:
+SUBOPT_0x6:
 	LDI  R31,0
 	ADIW R30,1
-	RJMP SUBOPT_0x7
+	RJMP SUBOPT_0x5
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:6 WORDS
-SUBOPT_0x9:
+SUBOPT_0x7:
 	MOV  R30,R13
 	LDI  R31,0
 	SUBI R30,LOW(-_sost)
@@ -3931,8 +3890,18 @@ SUBOPT_0x9:
 	CALL __LSLB12
 	RET
 
+;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:2 WORDS
+SUBOPT_0x8:
+	LDI  R30,LOW(0)
+	OUT  0x27,R30
+	LDI  R30,LOW(49728)
+	LDI  R31,HIGH(49728)
+	__PUTW1R 5,6
+	IN   R30,0x24
+	RET
+
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:4 WORDS
-SUBOPT_0xA:
+SUBOPT_0x9:
 	LDI  R30,LOW(0)
 	STS  _time,R30
 	STS  _time+1,R30
@@ -3941,7 +3910,7 @@ SUBOPT_0xA:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 8 TIMES, CODE SIZE REDUCTION:39 WORDS
-SUBOPT_0xB:
+SUBOPT_0xA:
 	LDS  R26,_time
 	LDS  R27,_time+1
 	LDS  R24,_time+2
@@ -3949,39 +3918,39 @@ SUBOPT_0xB:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:3 WORDS
-SUBOPT_0xC:
+SUBOPT_0xB:
 	CALL _clear_lcd
 	RJMP SUBOPT_0x0
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:3 WORDS
-SUBOPT_0xD:
+SUBOPT_0xC:
 	CALL _lcd_putsf
 	LDI  R30,LOW(1)
 	MOV  R7,R30
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:9 WORDS
-SUBOPT_0xE:
+SUBOPT_0xD:
 	MOV  R26,R7
 	SUBI R26,-LOW(47)
 	CALL _lcd_putchar
-	RJMP SUBOPT_0x6
+	RJMP SUBOPT_0x4
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:6 WORDS
-SUBOPT_0xF:
+SUBOPT_0xE:
 	LDS  R30,_sig_bit
 	SUBI R30,-LOW(2)
 	STS  _sig_bit,R30
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:4 WORDS
-SUBOPT_0x10:
-	RCALL SUBOPT_0xB
+SUBOPT_0xF:
+	RCALL SUBOPT_0xA
 	__CPD2N 0x7D
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 3 TIMES, CODE SIZE REDUCTION:11 WORDS
-SUBOPT_0x11:
+SUBOPT_0x10:
 	MOV  R26,R13
 	LDI  R27,0
 	SUBI R26,LOW(-_esost)
@@ -3992,7 +3961,7 @@ SUBOPT_0x11:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 3 TIMES, CODE SIZE REDUCTION:21 WORDS
-SUBOPT_0x12:
+SUBOPT_0x11:
 	MOV  R30,R13
 	LDI  R31,0
 	SUBI R30,LOW(-_esost)
@@ -4007,20 +3976,20 @@ SUBOPT_0x12:
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 3 TIMES, CODE SIZE REDUCTION:11 WORDS
-SUBOPT_0x13:
-	RCALL SUBOPT_0xB
+SUBOPT_0x12:
+	RCALL SUBOPT_0xA
 	__CPD2N 0x177
 	RET
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:1 WORDS
-SUBOPT_0x14:
-	LDI  R30,LOW(128)
+SUBOPT_0x13:
+	LDI  R30,LOW(176)
 	STS  180,R30
 	SBI  0xB,2
-	RJMP SUBOPT_0x12
+	RJMP SUBOPT_0x11
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:2 WORDS
-SUBOPT_0x15:
+SUBOPT_0x14:
 	CALL _clear_lcd
 	LDI  R30,LOW(0)
 	ST   -Y,R30
@@ -4028,14 +3997,14 @@ SUBOPT_0x15:
 	JMP  _lcd_gotoxy
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:1 WORDS
-SUBOPT_0x16:
+SUBOPT_0x15:
 	CALL __lcd_write_data
 	LDI  R26,LOW(3)
 	LDI  R27,0
 	JMP  _delay_ms
 
 ;OPTIMIZER ADDED SUBROUTINE, CALLED 3 TIMES, CODE SIZE REDUCTION:7 WORDS
-SUBOPT_0x17:
+SUBOPT_0x16:
 	LDI  R26,LOW(48)
 	CALL __lcd_write_nibble_G100
 	__DELAY_USW 400
