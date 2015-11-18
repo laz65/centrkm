@@ -27,6 +27,10 @@ EditorPanel0=0
 PageIndex0=0
 EditorPanel1=0
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 TimeStamp1=1198684308
@@ -39,6 +43,12 @@ TimeStamp1=1198630670
 =======
 TimeStamp1=1198630670
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+<<<<<<< HEAD
+=======
+=======
+TimeStamp1=1198630670
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
 PageIndex1=1
 F1=centrkm.c
 OF2=C:\cvavr\inc\alcd.h
@@ -537,6 +547,10 @@ Column=0
 ScrollPosX=0
 ScrollPosY=0
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -553,11 +567,18 @@ TimeStamp=1198630684
 =======
 TimeStamp=1198630684
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+<<<<<<< HEAD
+=======
+=======
+TimeStamp=1198630684
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
 [BookmarksFoldedCode]
 Files=2
 F1=centrkm.c
 F2=C:\cvavr\inc\alcd.h
 [Bookmarks1]
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -575,12 +596,12 @@ ScrollPosX=0
 ScrollPosY=448
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
 =======
-TimeStamp=1198630670
-Row=470
-Column=55
+TimeStamp=1198671304
+Row=441
+Column=45
 ScrollPosX=0
-ScrollPosY=448
->>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+ScrollPosY=413
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
 =======
 TimeStamp=1198630670
 Row=470
@@ -595,6 +616,23 @@ Column=55
 ScrollPosX=0
 ScrollPosY=448
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+=======
+TimeStamp=1198630670
+Row=470
+Column=55
+ScrollPosX=0
+ScrollPosY=448
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+<<<<<<< HEAD
+=======
+=======
+TimeStamp=1198630670
+Row=470
+Column=55
+ScrollPosX=0
+ScrollPosY=448
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
 BK0=-1
 BK1=-1
 BK2=-1
@@ -655,5 +693,28 @@ F5=C:\cvavr\inc\io.h
 F6=C:\cvavr\inc\stdarg.h
 F7=C:\cvavr\inc\twi.h
 F8=C:\cvavr\inc\stdbool.h
+<<<<<<< HEAD
 [FoldedCode1]
 Blocks=0
+=======
+[FoldedCode2]
+Blocks=0
+=======
+Line1=486
+Line2=548
+Line3=589
+Line4=612
+Blocks=4
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+[FoldedCode1]
+Blocks=0
+=======
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+=======
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+=======
+>>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
+>>>>>>> dd726c0656276c4ddf9089b6e2b7d17628977d70
