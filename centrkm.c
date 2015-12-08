@@ -56,9 +56,9 @@ flash unsigned char sinus[] = {130,133,136,139,143,146,149,152,155,158,161,164,1
 44,46,49,51,54,56,59,62,64,67,70,73,76,78,81,84,87,90,93,96,99,102,105,108,111,115,118,121,124,127};
 
 unsigned int ton1,a;
-unsigned char z, n, s435, period, per_old, per_new, i, sig_bayt, sig_bit, sost[32], page, p10, x_dysp, y_dysp, pos;
+unsigned char z, n, j, s435, period, per_old, per_new, i, sig_bayt, sig_bit, sost[32], page, p10, x_dysp, y_dysp, pos;
 unsigned long time;
-bit flag435, trevoga, pit_ok, sinc_err, pit_err, fix, nagh;
+bit flag435, trevoga, pit_ok, sinc_err, pit_err, fix, nagh, received_ok;
 
 eeprom long procfreq = 16000000;
 eeprom unsigned char esost[32] ;
@@ -122,14 +122,14 @@ if (twi_result==TWI_RES_OK)
    // Place your code here to process the received byte
    // Note: processing must be VERY FAST, otherwise
    // it is better to process the received data when
-   // all communication with the master has finished
-
+   // all communication with the master has finished     
+   received_ok=true;
    }
 else
    {
    // Receive error
    // Place your code here to process the error
-
+   received_ok=false;
    return false; // Stop further reception
    }
 
@@ -163,6 +163,21 @@ if (tx_complete==false)
 // Place code here to eventually process data from
 // the twi_rx_buffer, if it wasn't yet processed
 // in the twi_rx_handler
+
+if (received_ok)
+   {
+        for (j=0;j<32;j++)
+        {
+            sost[j] = twi_rx_buffer[j]; // действия при приеме     
+            twi_tx_buffer[j] = esost[j];    
+//            sost[j] = 0;
+        }
+   }  
+   else  
+   {
+        lcd_clear();
+        lcd_putsf(" ERR_receive ");
+   }
 
 // No more bytes to send in this transaction
 return 0;
@@ -362,10 +377,11 @@ procfreq = 16000000 ;
 ton1 = fdel(1080);
 
 
-
-
-
-for (n = 0; n < 32; n++) sost[n] = esost[n]; 
+for (n = 0; n < 32; n++) 
+{
+    sost[n] = esost[n];
+    twi_tx_buffer[n] = sost[n];
+} 
 //PORTD.4 = 1;
 //delay_ms(100);
 //PORTD.4 = 0;
@@ -396,9 +412,6 @@ OCR2B=0x00; // выключение преобразователя
 //
 //OCR2B=0xFF; // выключение преобразователя
 //
-
-
-for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
 
     while (1)
     {   
@@ -582,13 +595,19 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                             }      
                             vyh_t0 = 1;            // переключить Hа вyход 
                                       
-                            if(n < 251) esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану если сигнал прервался
-                            else sost[sig_bayt] &= ~(1<<sig_bit);    // если не взялась, - снять
+                            if(n < 251) 
+                            {
+                                esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану если сигнал прервался
+                                twi_tx_buffer[sig_bayt] = esost[sig_bayt]; // передача состояния
+                            }
+                            else sost[sig_bayt] &= ~(3<<sig_bit);    // если не взялась, - снять
                         }
                         else
                         {
                         // если объекм был по охраной тревога
-                            sost[sig_bayt] |= (1<<(sig_bit+1));
+                            sost[sig_bayt] |= (1<<(sig_bit+1));    
+                            esost[sig_bayt] |= (1<<(sig_bit+1));    
+                            twi_tx_buffer[sig_bayt] = esost[sig_bayt]; // передача состояния
                             trevoga = 1;  
                             zvuk = 1;
                         }
@@ -598,13 +617,10 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                     } 
                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
                     {
-                            //если был под охр. снять с охр.
- //                           OCR2B=0xB0; // выдача на шим
- //                           vyh_minus = 1;       
-                            esost[sig_bayt] &= ~(1<<sig_bit);      // 
-//                            while(time<375) #asm("wdr");  
-//                            vyh_minus = 0;
-//                            OCR2B=0xFF;                 
+
+                        esost[sig_bayt] &= ~(3<<sig_bit);      //  если был под охр. снять с охр. 
+
+                        twi_tx_buffer[sig_bayt] = esost[sig_bayt]; // передача состояния
                         
                     }
 
@@ -696,7 +712,6 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                             }
                         }  
                     } 
-//                    for(n=0;n<32;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
                     break;
                 case 15: 
                 case 47: 
@@ -705,24 +720,20 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                     break;
                 default:
                     if ((sost[sig_bayt]&(1<<sig_bit)) == 0) 
-                    {
-                                           
-                        if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
+                    {                                           
+                        if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был  
                         {
-                            //если был под охр. снять с охр.
-//                            OCR2B=0xB0; // выдача на шим
-//                            vyh_minus = 1;       
-                            esost[sig_bayt] &= ~(1<<sig_bit);      //  снять с охр.
-//                            while(time<375) #asm("wdr");  
-//                            vyh_minus = 0;
-//                            OCR2B=0xFF;                 
-
+                            //если был под охр. снять с охр.  
+                            esost[sig_bayt] &= ~(3<<sig_bit);      //  снять с охр.             
+                            twi_tx_buffer[sig_bayt] = esost[sig_bayt]; // передача состояния
                         } 
-                        else  zvuk = 1; // звук если нет ответа от номера не под охраной
                     } 
-                       
-            } 
-             
+                    else  if ((esost[sig_bayt]&(1<<sig_bit)) == 0) //если под охраной, но не был
+                    {
+                        esost[sig_bayt] |= (1<<sig_bit);   // включаем охрану 
+                        twi_tx_buffer[sig_bayt] = esost[sig_bayt]; // передача состояния
+                    }                    
+            }             
           } 
           flag435 = 0;             
           if (pit_ok)

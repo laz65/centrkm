@@ -33,7 +33,15 @@ EditorPanel1=0
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-TimeStamp1=1200122739
+<<<<<<< HEAD
+<<<<<<< HEAD
+TimeStamp1=1200772681
+=======
+TimeStamp1=1200320332
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+TimeStamp1=1200320332
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 =======
 TimeStamp1=1198630670
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
@@ -154,8 +162,18 @@ WatchAVR8LAutoVariables=0
 UseEEPROMLocation0=1
 RebuildAll=0
 LinkageInformationPresent=1
-COFFileTimeStamp=1200122741
-Build=167
+<<<<<<< HEAD
+<<<<<<< HEAD
+COFFileTimeStamp=1200772581
+Build=215
+=======
+COFFileTimeStamp=1200320362
+Build=177
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+COFFileTimeStamp=1200320362
+Build=177
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 [DefinedSymbolsDebug]
 Count=0
 [Compiler]
@@ -257,7 +275,15 @@ UseEEPROMLocation0=1
 RebuildAll=1
 LinkageInformationPresent=0
 COFFileTimeStamp=-1
-Build=167
+<<<<<<< HEAD
+<<<<<<< HEAD
+Build=215
+=======
+Build=177
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+Build=177
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 IncludePath0=
 IncludePath1=
 IncludePath2=
@@ -483,7 +509,15 @@ CheckSignature=1
 CheckErasure=0
 PreserveEEPROM=0
 VerifyProgramming=1
-ProgrammingCounter=53
+<<<<<<< HEAD
+<<<<<<< HEAD
+ProgrammingCounter=75
+=======
+ProgrammingCounter=58
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+ProgrammingCounter=58
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 RunUserProg=0
 UserProgPath=
 UserProgCmdLine=
@@ -505,8 +539,18 @@ L13=Enhanced function parameters passing: Yes
 L14=Automatic register allocation: Yes
 L15=Smart register allocation: Yes
 L16=
-L17=Build: 166
-L18=14056 line(s) compiled
+<<<<<<< HEAD
+<<<<<<< HEAD
+L17=Build: 214
+L18=14067 line(s) compiled
+=======
+L17=Build: 176
+L18=14058 line(s) compiled
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+L17=Build: 176
+L18=14058 line(s) compiled
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 L19=No errors
 L20=No warnings
 L21=
@@ -517,17 +561,27 @@ L25=Data Stack area: 0x100 to 0x2FF
 L26=Data Stack size: 512 byte(s)
 L27=Estimated Data Stack usage: 29 byte(s)
 L28=
-L29=RAM Global variables area: 0x300 to 0x37F
-L30=RAM Global variables size: 128 byte(s)
+L29=RAM Global variables area: 0x300 to 0x380
+L30=RAM Global variables size: 129 byte(s)
 L31=
-L32=Hardware Stack area: 0x380 to 0x8FF
-L33=Hardware Stack size: 1408 byte(s)
+L32=Hardware Stack area: 0x381 to 0x8FF
+L33=Hardware Stack size: 1407 byte(s)
 L34=
 L35=Heap size: 0 byte(s)
 L36=
 L37=EEPROM usage: 36 byte(s), 3,5% of EEPROM
-L38=Program size: 2738 words (5476 bytes), 16,7% of FLASH
-L39=335 words (670 bytes), 10,9% reduced by Code Compression
+<<<<<<< HEAD
+<<<<<<< HEAD
+L38=Program size: 2861 words (5722 bytes), 17,5% of FLASH
+L39=431 words (862 bytes), 13,1% reduced by Code Compression
+=======
+L38=Program size: 2748 words (5496 bytes), 16,8% of FLASH
+L39=361 words (722 bytes), 11,6% reduced by Code Compression
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+L38=Program size: 2748 words (5496 bytes), 16,8% of FLASH
+L39=361 words (722 bytes), 11,6% reduced by Code Compression
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 Lines=39
 [BuildInfoAssembler]
 L1=AVRASM: AVR macro assembler 2.1.30 (build 592 Nov  7 2008 12:38:17)
@@ -536,8 +590,16 @@ L3=
 L4=ATmega328P memory use summary [bytes]:
 L5=Segment   Begin    End      Code   Data   Used    Size   Use%
 L6=---------------------------------------------------------------
-L7=[.cseg] 0x000000 0x001564   5042    434   5476   32768  16.7%
+<<<<<<< HEAD
+<<<<<<< HEAD
+L7=[.cseg] 0x000000 0x00165a   5274    448   5722   32768  17.5%
+L8=[.dseg] 0x000100 0x000381      0    129    129    2048   6.3%
+=======
+=======
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+L7=[.cseg] 0x000000 0x001578   5062    434   5496   32768  16.8%
 L8=[.dseg] 0x000100 0x000380      0    128    128    2048   6.3%
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 L9=[.eseg] 0x000000 0x000024      0     36     36    1024   3.5%
 L10=
 Lines=10
@@ -554,7 +616,15 @@ ScrollPosY=0
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-TimeStamp=1200125509
+<<<<<<< HEAD
+<<<<<<< HEAD
+TimeStamp=1200772715
+=======
+TimeStamp=1200321682
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+TimeStamp=1200321682
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 =======
 TimeStamp=1198630684
 >>>>>>> dbbe9d8bda1bb3ca2f03b5bcbf8446e7e479e0f0
@@ -583,11 +653,25 @@ F2=C:\cvavr\inc\alcd.h
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
-TimeStamp=1200122739
-Row=584
-Column=43
+<<<<<<< HEAD
+<<<<<<< HEAD
+TimeStamp=1200772681
+Row=0
+Column=0
 ScrollPosX=0
-ScrollPosY=571
+ScrollPosY=576
+=======
+=======
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+TimeStamp=1200320332
+Row=708
+Column=49
+ScrollPosX=0
+ScrollPosY=350
+<<<<<<< HEAD
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
+=======
+>>>>>>> 5095b848968fc8b77e12a36eb0b5e042549e4032
 =======
 TimeStamp=1198630670
 Row=470
