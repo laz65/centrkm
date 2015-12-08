@@ -1451,65 +1451,67 @@
 ; 0000 0239                             vyh_plus = 1;
 ;PCODE: $00000360 VOL: 0
 ;PCODE: $00000361 VOL: 0
-; 0000 023A                             esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
+; 0000 023A                             vyh_t0 = 0;            // переключить а вход
 ;PCODE: $00000362 VOL: 0
 ;PCODE: $00000363 VOL: 0
+; 0000 023B                             n = 0;
 ;PCODE: $00000364 VOL: 0
+; 0000 023C                             while(flag435)
 ;PCODE: $00000365 VOL: 0
 ;PCODE: $00000366 VOL: 0
 ;PCODE: $00000367 VOL: 0
 ;PCODE: $00000368 VOL: 0
+; 0000 023D                             {
+; 0000 023E                                 flag435 = 0;
 ;PCODE: $00000369 VOL: 0
 ;PCODE: $0000036A VOL: 0
+; 0000 023F                                 ACSR |= (1<<ACIE); // включить перывания от компарат
 ;PCODE: $0000036B VOL: 0
 ;PCODE: $0000036C VOL: 0
 ;PCODE: $0000036D VOL: 0
+; 0000 0240                                 time = 0;
 ;PCODE: $0000036E VOL: 0
-; 0000 023B                         }
-; 0000 023C                         else
 ;PCODE: $0000036F VOL: 0
+; 0000 0241                                 while (time < 9) #asm("wdr");    // 25мСек + 12
 ;PCODE: $00000370 VOL: 0
-; 0000 023D                         {
-; 0000 023E                         // если объекм был по охраной тревога
-; 0000 023F                             sost[sig_bayt] |= (1<<(sig_bit+1));
 ;PCODE: $00000371 VOL: 0
 ;PCODE: $00000372 VOL: 0
 ;PCODE: $00000373 VOL: 0
 ;PCODE: $00000374 VOL: 0
+	wdr
 ;PCODE: $00000375 VOL: 0
+; 0000 0242                                 ACSR &= ~(1<<ACIE); // выкл прер компар
 ;PCODE: $00000376 VOL: 0
 ;PCODE: $00000377 VOL: 0
 ;PCODE: $00000378 VOL: 0
 ;PCODE: $00000379 VOL: 0
 ;PCODE: $0000037A VOL: 0
+; 0000 0243 
+; 0000 0244                                 //Ждем прекращения сигнала
+; 0000 0245                                 if (++n > 250) flag435 = 0;
 ;PCODE: $0000037B VOL: 0
 ;PCODE: $0000037C VOL: 0
-; 0000 0240                             trevoga = 1;
 ;PCODE: $0000037D VOL: 0
 ;PCODE: $0000037E VOL: 0
-; 0000 0241                             zvuk = 1;
 ;PCODE: $0000037F VOL: 0
 ;PCODE: $00000380 VOL: 0
-; 0000 0242                         }
+; 0000 0246                             }
 ;PCODE: $00000381 VOL: 0
-; 0000 0243                         while(time<375) #asm("wdr");
 ;PCODE: $00000382 VOL: 0
 ;PCODE: $00000383 VOL: 0
+; 0000 0247                             vyh_t0 = 1;            // переключить Hа вyход
 ;PCODE: $00000384 VOL: 0
 ;PCODE: $00000385 VOL: 0
+; 0000 0248 
+; 0000 0249                             if(n < 251) esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану если сигнал прервался
 ;PCODE: $00000386 VOL: 0
-	wdr
 ;PCODE: $00000387 VOL: 0
-; 0000 0244                         vyh_plus = 0;
 ;PCODE: $00000388 VOL: 0
 ;PCODE: $00000389 VOL: 0
 ;PCODE: $0000038A VOL: 0
 ;PCODE: $0000038B VOL: 0
-; 0000 0245                         OCR2B=0xFF;
 ;PCODE: $0000038C VOL: 0
 ;PCODE: $0000038D VOL: 0
-; 0000 0246                     }
-; 0000 0247                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
 ;PCODE: $0000038E VOL: 0
 ;PCODE: $0000038F VOL: 0
 ;PCODE: $00000390 VOL: 0
@@ -1518,6 +1520,7 @@
 ;PCODE: $00000393 VOL: 0
 ;PCODE: $00000394 VOL: 0
 ;PCODE: $00000395 VOL: 0
+; 0000 024A                             else sost[sig_bayt] &= ~(1<<sig_bit);    // если не взялась, - снять
 ;PCODE: $00000396 VOL: 0
 ;PCODE: $00000397 VOL: 0
 ;PCODE: $00000398 VOL: 0
@@ -1525,21 +1528,21 @@
 ;PCODE: $0000039A VOL: 0
 ;PCODE: $0000039B VOL: 0
 ;PCODE: $0000039C VOL: 0
-; 0000 0248                     {
-; 0000 0249                             //если был под охр. снять с охр.
-; 0000 024A                             OCR2B=0xB0; // выдача на шим
 ;PCODE: $0000039D VOL: 0
 ;PCODE: $0000039E VOL: 0
-; 0000 024B                             vyh_minus = 1;
 ;PCODE: $0000039F VOL: 0
 ;PCODE: $000003A0 VOL: 0
-; 0000 024C                             esost[sig_bayt] &= ~(1<<sig_bit);      //
 ;PCODE: $000003A1 VOL: 0
 ;PCODE: $000003A2 VOL: 0
 ;PCODE: $000003A3 VOL: 0
+; 0000 024B                         }
 ;PCODE: $000003A4 VOL: 0
+; 0000 024C                         else
 ;PCODE: $000003A5 VOL: 0
 ;PCODE: $000003A6 VOL: 0
+; 0000 024D                         {
+; 0000 024E                         // если объекм был по охраной тревога
+; 0000 024F                             sost[sig_bayt] |= (1<<(sig_bit+1));
 ;PCODE: $000003A7 VOL: 0
 ;PCODE: $000003A8 VOL: 0
 ;PCODE: $000003A9 VOL: 0
@@ -1548,147 +1551,156 @@
 ;PCODE: $000003AC VOL: 0
 ;PCODE: $000003AD VOL: 0
 ;PCODE: $000003AE VOL: 0
-; 0000 024D                             while(time<375) #asm("wdr");
 ;PCODE: $000003AF VOL: 0
 ;PCODE: $000003B0 VOL: 0
 ;PCODE: $000003B1 VOL: 0
 ;PCODE: $000003B2 VOL: 0
+; 0000 0250                             trevoga = 1;
 ;PCODE: $000003B3 VOL: 0
-	wdr
 ;PCODE: $000003B4 VOL: 0
-; 0000 024E                             vyh_minus = 0;
+; 0000 0251                             zvuk = 1;
 ;PCODE: $000003B5 VOL: 0
 ;PCODE: $000003B6 VOL: 0
+; 0000 0252                         }
 ;PCODE: $000003B7 VOL: 0
+; 0000 0253                         while(time<375) #asm("wdr");
 ;PCODE: $000003B8 VOL: 0
-; 0000 024F                             OCR2B=0xFF;
 ;PCODE: $000003B9 VOL: 0
 ;PCODE: $000003BA VOL: 0
-; 0000 0250 
-; 0000 0251                     }
-; 0000 0252 
-; 0000 0253             }
 ;PCODE: $000003BB VOL: 0
 ;PCODE: $000003BC VOL: 0
+	wdr
 ;PCODE: $000003BD VOL: 0
-; 0000 0254           }
-; 0000 0255           else      // если не было ответа
+; 0000 0254                         vyh_plus = 0;
 ;PCODE: $000003BE VOL: 0
 ;PCODE: $000003BF VOL: 0
-; 0000 0256           {
-; 0000 0257             switch (i)
 ;PCODE: $000003C0 VOL: 0
 ;PCODE: $000003C1 VOL: 0
-; 0000 0258             {
-; 0000 0259                 case 31:
+; 0000 0255                         OCR2B=0xFF;
 ;PCODE: $000003C2 VOL: 0
 ;PCODE: $000003C3 VOL: 0
-; 0000 025A                     // вкл питание
-; 0000 025B 
-; 0000 025C                     if (!fix)
+; 0000 0256                     }
+; 0000 0257                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
 ;PCODE: $000003C4 VOL: 0
 ;PCODE: $000003C5 VOL: 0
 ;PCODE: $000003C6 VOL: 0
-; 0000 025D                     {
-; 0000 025E                         clear_lcd();
 ;PCODE: $000003C7 VOL: 0
-; 0000 025F                         lcd_gotoxy(0,1);
 ;PCODE: $000003C8 VOL: 0
 ;PCODE: $000003C9 VOL: 0
 ;PCODE: $000003CA VOL: 0
 ;PCODE: $000003CB VOL: 0
-; 0000 0260                         lcd_putsf("Error Pitanie!!!");
 ;PCODE: $000003CC VOL: 0
 ;PCODE: $000003CD VOL: 0
 ;PCODE: $000003CE VOL: 0
-; 0000 0261                     }
-; 0000 0262 
-; 0000 0263                     pit_err = 1;
 ;PCODE: $000003CF VOL: 0
 ;PCODE: $000003D0 VOL: 0
 ;PCODE: $000003D1 VOL: 0
-; 0000 0264                     pit_ok = 0;
 ;PCODE: $000003D2 VOL: 0
+; 0000 0258                     {
+; 0000 0259                             //если был под охр. снять с охр.
+; 0000 025A  //                           OCR2B=0xB0; // выдача на шим
+; 0000 025B  //                           vyh_minus = 1;
+; 0000 025C                             esost[sig_bayt] &= ~(1<<sig_bit);      //
 ;PCODE: $000003D3 VOL: 0
-; 0000 0265                     break;
 ;PCODE: $000003D4 VOL: 0
-; 0000 0266                 case 63:
 ;PCODE: $000003D5 VOL: 0
 ;PCODE: $000003D6 VOL: 0
 ;PCODE: $000003D7 VOL: 0
-; 0000 0267                     // вывод второй половины на дисп
-; 0000 0268                     if (!fix)
 ;PCODE: $000003D8 VOL: 0
 ;PCODE: $000003D9 VOL: 0
 ;PCODE: $000003DA VOL: 0
-; 0000 0269                     {
-; 0000 026A                         clear_lcd();
 ;PCODE: $000003DB VOL: 0
-; 0000 026B                         lcd_gotoxy(0,0);
 ;PCODE: $000003DC VOL: 0
 ;PCODE: $000003DD VOL: 0
 ;PCODE: $000003DE VOL: 0
 ;PCODE: $000003DF VOL: 0
-; 0000 026C                         lcd_putsf("31  ");
 ;PCODE: $000003E0 VOL: 0
+; 0000 025D //                            while(time<375) #asm("wdr");
+; 0000 025E //                            vyh_minus = 0;
+; 0000 025F //                            OCR2B=0xFF;
+; 0000 0260 
+; 0000 0261                     }
+; 0000 0262 
+; 0000 0263             }
 ;PCODE: $000003E1 VOL: 0
 ;PCODE: $000003E2 VOL: 0
-; 0000 026D                         n = 1;
 ;PCODE: $000003E3 VOL: 0
+; 0000 0264           }
+; 0000 0265           else      // если не было ответа
 ;PCODE: $000003E4 VOL: 0
-; 0000 026E                         for (sig_bayt = 8; sig_bayt < 16 ; sig_bayt++)
 ;PCODE: $000003E5 VOL: 0
+; 0000 0266           {
+; 0000 0267             switch (i)
 ;PCODE: $000003E6 VOL: 0
 ;PCODE: $000003E7 VOL: 0
+; 0000 0268             {
+; 0000 0269                 case 31:
 ;PCODE: $000003E8 VOL: 0
 ;PCODE: $000003E9 VOL: 0
+; 0000 026A                     // вкл питание
+; 0000 026B 
+; 0000 026C                     if (!fix)
 ;PCODE: $000003EA VOL: 0
 ;PCODE: $000003EB VOL: 0
 ;PCODE: $000003EC VOL: 0
-; 0000 026F                         {
-; 0000 0270                             for(sig_bit = 0; (sig_bayt == 11 || sig_bayt == 15)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
+; 0000 026D                     {
+; 0000 026E                         clear_lcd();
 ;PCODE: $000003ED VOL: 0
+; 0000 026F                         lcd_gotoxy(0,1);
 ;PCODE: $000003EE VOL: 0
 ;PCODE: $000003EF VOL: 0
 ;PCODE: $000003F0 VOL: 0
 ;PCODE: $000003F1 VOL: 0
+; 0000 0270                         lcd_putsf("Error Pitanie!!!");
 ;PCODE: $000003F2 VOL: 0
 ;PCODE: $000003F3 VOL: 0
 ;PCODE: $000003F4 VOL: 0
+; 0000 0271                     }
+; 0000 0272 
+; 0000 0273                     pit_err = 1;
 ;PCODE: $000003F5 VOL: 0
 ;PCODE: $000003F6 VOL: 0
 ;PCODE: $000003F7 VOL: 0
+; 0000 0274                     pit_ok = 0;
 ;PCODE: $000003F8 VOL: 0
 ;PCODE: $000003F9 VOL: 0
+; 0000 0275                     break;
 ;PCODE: $000003FA VOL: 0
+; 0000 0276                 case 63:
 ;PCODE: $000003FB VOL: 0
 ;PCODE: $000003FC VOL: 0
 ;PCODE: $000003FD VOL: 0
+; 0000 0277                     // вывод второй половины на дисп
+; 0000 0278                     if (!fix)
 ;PCODE: $000003FE VOL: 0
 ;PCODE: $000003FF VOL: 0
 ;PCODE: $00000400 VOL: 0
+; 0000 0279                     {
+; 0000 027A                         clear_lcd();
 ;PCODE: $00000401 VOL: 0
+; 0000 027B                         lcd_gotoxy(0,0);
 ;PCODE: $00000402 VOL: 0
 ;PCODE: $00000403 VOL: 0
 ;PCODE: $00000404 VOL: 0
 ;PCODE: $00000405 VOL: 0
+; 0000 027C                         lcd_putsf("31  ");
 ;PCODE: $00000406 VOL: 0
 ;PCODE: $00000407 VOL: 0
-; 0000 0271                             {
-; 0000 0272                                 if(++n>10) n = 1;
 ;PCODE: $00000408 VOL: 0
+; 0000 027D                         n = 1;
 ;PCODE: $00000409 VOL: 0
 ;PCODE: $0000040A VOL: 0
+; 0000 027E                         for (sig_bayt = 8; sig_bayt < 16 ; sig_bayt++)
 ;PCODE: $0000040B VOL: 0
 ;PCODE: $0000040C VOL: 0
 ;PCODE: $0000040D VOL: 0
-; 0000 0273                                 lcd_putchar(47+n);
 ;PCODE: $0000040E VOL: 0
 ;PCODE: $0000040F VOL: 0
 ;PCODE: $00000410 VOL: 0
 ;PCODE: $00000411 VOL: 0
-; 0000 0274                                 if((sost[sig_bayt]&(1<<sig_bit)))
 ;PCODE: $00000412 VOL: 0
+; 0000 027F                         {
+; 0000 0280                             for(sig_bit = 0; (sig_bayt == 11 || sig_bayt == 15)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 ;PCODE: $00000413 VOL: 0
 ;PCODE: $00000414 VOL: 0
 ;PCODE: $00000415 VOL: 0
@@ -1700,8 +1712,6 @@
 ;PCODE: $0000041B VOL: 0
 ;PCODE: $0000041C VOL: 0
 ;PCODE: $0000041D VOL: 0
-; 0000 0275                                 {
-; 0000 0276                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
 ;PCODE: $0000041E VOL: 0
 ;PCODE: $0000041F VOL: 0
 ;PCODE: $00000420 VOL: 0
@@ -1718,71 +1728,62 @@
 ;PCODE: $0000042B VOL: 0
 ;PCODE: $0000042C VOL: 0
 ;PCODE: $0000042D VOL: 0
-; 0000 0277                                      else  lcd_putchar('.');
+; 0000 0281                             {
+; 0000 0282                                 if(++n>10) n = 1;
 ;PCODE: $0000042E VOL: 0
 ;PCODE: $0000042F VOL: 0
 ;PCODE: $00000430 VOL: 0
 ;PCODE: $00000431 VOL: 0
-; 0000 0278                                 } else lcd_putchar(' ');
 ;PCODE: $00000432 VOL: 0
 ;PCODE: $00000433 VOL: 0
+; 0000 0283                                 lcd_putchar(47+n);
 ;PCODE: $00000434 VOL: 0
 ;PCODE: $00000435 VOL: 0
 ;PCODE: $00000436 VOL: 0
-; 0000 0279                             }
 ;PCODE: $00000437 VOL: 0
+; 0000 0284                                 if((sost[sig_bayt]&(1<<sig_bit)))
 ;PCODE: $00000438 VOL: 0
 ;PCODE: $00000439 VOL: 0
 ;PCODE: $0000043A VOL: 0
 ;PCODE: $0000043B VOL: 0
 ;PCODE: $0000043C VOL: 0
 ;PCODE: $0000043D VOL: 0
-; 0000 027A                         }
 ;PCODE: $0000043E VOL: 0
 ;PCODE: $0000043F VOL: 0
 ;PCODE: $00000440 VOL: 0
 ;PCODE: $00000441 VOL: 0
-; 0000 027B                     }
-; 0000 027C 
-; 0000 027D                     break;
 ;PCODE: $00000442 VOL: 0
 ;PCODE: $00000443 VOL: 0
-; 0000 027E                 case 95:
+; 0000 0285                                 {
+; 0000 0286                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
 ;PCODE: $00000444 VOL: 0
 ;PCODE: $00000445 VOL: 0
 ;PCODE: $00000446 VOL: 0
-; 0000 027F                     // вывод третьей половины на дисп
-; 0000 0280                     if (!fix)
 ;PCODE: $00000447 VOL: 0
 ;PCODE: $00000448 VOL: 0
 ;PCODE: $00000449 VOL: 0
-; 0000 0281                     {
-; 0000 0282                         clear_lcd();
 ;PCODE: $0000044A VOL: 0
-; 0000 0283                         lcd_gotoxy(0,0);
 ;PCODE: $0000044B VOL: 0
 ;PCODE: $0000044C VOL: 0
 ;PCODE: $0000044D VOL: 0
 ;PCODE: $0000044E VOL: 0
-; 0000 0284                         lcd_putsf("61  ");
 ;PCODE: $0000044F VOL: 0
 ;PCODE: $00000450 VOL: 0
 ;PCODE: $00000451 VOL: 0
-; 0000 0285                         n = 1;
 ;PCODE: $00000452 VOL: 0
 ;PCODE: $00000453 VOL: 0
-; 0000 0286                         for (sig_bayt = 16; sig_bayt < 24 ; sig_bayt++)
+; 0000 0287                                      else  lcd_putchar('.');
 ;PCODE: $00000454 VOL: 0
 ;PCODE: $00000455 VOL: 0
 ;PCODE: $00000456 VOL: 0
 ;PCODE: $00000457 VOL: 0
+; 0000 0288                                 } else lcd_putchar(' ');
 ;PCODE: $00000458 VOL: 0
 ;PCODE: $00000459 VOL: 0
 ;PCODE: $0000045A VOL: 0
 ;PCODE: $0000045B VOL: 0
-; 0000 0287                         {
-; 0000 0288                             for(sig_bit = 0; (sig_bayt == 19 || sig_bayt == 23)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 ;PCODE: $0000045C VOL: 0
+; 0000 0289                             }
 ;PCODE: $0000045D VOL: 0
 ;PCODE: $0000045E VOL: 0
 ;PCODE: $0000045F VOL: 0
@@ -1790,40 +1791,51 @@
 ;PCODE: $00000461 VOL: 0
 ;PCODE: $00000462 VOL: 0
 ;PCODE: $00000463 VOL: 0
+; 0000 028A                         }
 ;PCODE: $00000464 VOL: 0
 ;PCODE: $00000465 VOL: 0
 ;PCODE: $00000466 VOL: 0
 ;PCODE: $00000467 VOL: 0
+; 0000 028B                     }
+; 0000 028C 
+; 0000 028D                     break;
 ;PCODE: $00000468 VOL: 0
 ;PCODE: $00000469 VOL: 0
+; 0000 028E                 case 95:
 ;PCODE: $0000046A VOL: 0
 ;PCODE: $0000046B VOL: 0
 ;PCODE: $0000046C VOL: 0
+; 0000 028F                     // вывод третьей половины на дисп
+; 0000 0290                     if (!fix)
 ;PCODE: $0000046D VOL: 0
 ;PCODE: $0000046E VOL: 0
 ;PCODE: $0000046F VOL: 0
+; 0000 0291                     {
+; 0000 0292                         clear_lcd();
 ;PCODE: $00000470 VOL: 0
+; 0000 0293                         lcd_gotoxy(0,0);
 ;PCODE: $00000471 VOL: 0
 ;PCODE: $00000472 VOL: 0
 ;PCODE: $00000473 VOL: 0
 ;PCODE: $00000474 VOL: 0
+; 0000 0294                         lcd_putsf("61  ");
 ;PCODE: $00000475 VOL: 0
 ;PCODE: $00000476 VOL: 0
-; 0000 0289                             {
-; 0000 028A                                 if(++n>10) n = 1;
 ;PCODE: $00000477 VOL: 0
+; 0000 0295                         n = 1;
 ;PCODE: $00000478 VOL: 0
 ;PCODE: $00000479 VOL: 0
+; 0000 0296                         for (sig_bayt = 16; sig_bayt < 24 ; sig_bayt++)
 ;PCODE: $0000047A VOL: 0
 ;PCODE: $0000047B VOL: 0
 ;PCODE: $0000047C VOL: 0
-; 0000 028B                                 lcd_putchar(47+n);
 ;PCODE: $0000047D VOL: 0
 ;PCODE: $0000047E VOL: 0
 ;PCODE: $0000047F VOL: 0
 ;PCODE: $00000480 VOL: 0
-; 0000 028C                                 if((sost[sig_bayt]&(1<<sig_bit)))
 ;PCODE: $00000481 VOL: 0
+; 0000 0297                         {
+; 0000 0298                             for(sig_bit = 0; (sig_bayt == 19 || sig_bayt == 23)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 ;PCODE: $00000482 VOL: 0
 ;PCODE: $00000483 VOL: 0
 ;PCODE: $00000484 VOL: 0
@@ -1835,8 +1847,6 @@
 ;PCODE: $0000048A VOL: 0
 ;PCODE: $0000048B VOL: 0
 ;PCODE: $0000048C VOL: 0
-; 0000 028D                                 {
-; 0000 028E                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
 ;PCODE: $0000048D VOL: 0
 ;PCODE: $0000048E VOL: 0
 ;PCODE: $0000048F VOL: 0
@@ -1853,70 +1863,62 @@
 ;PCODE: $0000049A VOL: 0
 ;PCODE: $0000049B VOL: 0
 ;PCODE: $0000049C VOL: 0
-; 0000 028F                                      else  lcd_putchar('.');
+; 0000 0299                             {
+; 0000 029A                                 if(++n>10) n = 1;
 ;PCODE: $0000049D VOL: 0
 ;PCODE: $0000049E VOL: 0
 ;PCODE: $0000049F VOL: 0
 ;PCODE: $000004A0 VOL: 0
-; 0000 0290                                 } else lcd_putchar(' ');
 ;PCODE: $000004A1 VOL: 0
 ;PCODE: $000004A2 VOL: 0
+; 0000 029B                                 lcd_putchar(47+n);
 ;PCODE: $000004A3 VOL: 0
 ;PCODE: $000004A4 VOL: 0
 ;PCODE: $000004A5 VOL: 0
-; 0000 0291                             }
 ;PCODE: $000004A6 VOL: 0
+; 0000 029C                                 if((sost[sig_bayt]&(1<<sig_bit)))
 ;PCODE: $000004A7 VOL: 0
 ;PCODE: $000004A8 VOL: 0
 ;PCODE: $000004A9 VOL: 0
 ;PCODE: $000004AA VOL: 0
 ;PCODE: $000004AB VOL: 0
 ;PCODE: $000004AC VOL: 0
-; 0000 0292                         }
 ;PCODE: $000004AD VOL: 0
 ;PCODE: $000004AE VOL: 0
 ;PCODE: $000004AF VOL: 0
 ;PCODE: $000004B0 VOL: 0
-; 0000 0293                     }
-; 0000 0294                     break;
 ;PCODE: $000004B1 VOL: 0
 ;PCODE: $000004B2 VOL: 0
-; 0000 0295                 case 127:
+; 0000 029D                                 {
+; 0000 029E                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
 ;PCODE: $000004B3 VOL: 0
 ;PCODE: $000004B4 VOL: 0
 ;PCODE: $000004B5 VOL: 0
-; 0000 0296                     // вывод четвертой половины на дисп
-; 0000 0297                     if (!fix)
 ;PCODE: $000004B6 VOL: 0
 ;PCODE: $000004B7 VOL: 0
 ;PCODE: $000004B8 VOL: 0
-; 0000 0298                     {
-; 0000 0299                         clear_lcd();
 ;PCODE: $000004B9 VOL: 0
-; 0000 029A                         lcd_gotoxy(0,0);
 ;PCODE: $000004BA VOL: 0
 ;PCODE: $000004BB VOL: 0
 ;PCODE: $000004BC VOL: 0
 ;PCODE: $000004BD VOL: 0
-; 0000 029B                         lcd_putsf("91  ");
 ;PCODE: $000004BE VOL: 0
 ;PCODE: $000004BF VOL: 0
 ;PCODE: $000004C0 VOL: 0
-; 0000 029C                         n = 1;
 ;PCODE: $000004C1 VOL: 0
 ;PCODE: $000004C2 VOL: 0
-; 0000 029D                         for (sig_bayt = 24; sig_bayt < 32; sig_bayt++)
+; 0000 029F                                      else  lcd_putchar('.');
 ;PCODE: $000004C3 VOL: 0
 ;PCODE: $000004C4 VOL: 0
 ;PCODE: $000004C5 VOL: 0
 ;PCODE: $000004C6 VOL: 0
+; 0000 02A0                                 } else lcd_putchar(' ');
 ;PCODE: $000004C7 VOL: 0
 ;PCODE: $000004C8 VOL: 0
 ;PCODE: $000004C9 VOL: 0
 ;PCODE: $000004CA VOL: 0
-; 0000 029E                         {
-; 0000 029F                             for(sig_bit = 0; (sig_bayt == 27 || sig_bayt == 31)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 ;PCODE: $000004CB VOL: 0
+; 0000 02A1                             }
 ;PCODE: $000004CC VOL: 0
 ;PCODE: $000004CD VOL: 0
 ;PCODE: $000004CE VOL: 0
@@ -1924,40 +1926,50 @@
 ;PCODE: $000004D0 VOL: 0
 ;PCODE: $000004D1 VOL: 0
 ;PCODE: $000004D2 VOL: 0
+; 0000 02A2                         }
 ;PCODE: $000004D3 VOL: 0
 ;PCODE: $000004D4 VOL: 0
 ;PCODE: $000004D5 VOL: 0
 ;PCODE: $000004D6 VOL: 0
+; 0000 02A3                     }
+; 0000 02A4                     break;
 ;PCODE: $000004D7 VOL: 0
 ;PCODE: $000004D8 VOL: 0
+; 0000 02A5                 case 127:
 ;PCODE: $000004D9 VOL: 0
 ;PCODE: $000004DA VOL: 0
 ;PCODE: $000004DB VOL: 0
+; 0000 02A6                     // вывод четвертой половины на дисп
+; 0000 02A7                     if (!fix)
 ;PCODE: $000004DC VOL: 0
 ;PCODE: $000004DD VOL: 0
 ;PCODE: $000004DE VOL: 0
+; 0000 02A8                     {
+; 0000 02A9                         clear_lcd();
 ;PCODE: $000004DF VOL: 0
+; 0000 02AA                         lcd_gotoxy(0,0);
 ;PCODE: $000004E0 VOL: 0
 ;PCODE: $000004E1 VOL: 0
 ;PCODE: $000004E2 VOL: 0
 ;PCODE: $000004E3 VOL: 0
+; 0000 02AB                         lcd_putsf("91  ");
 ;PCODE: $000004E4 VOL: 0
 ;PCODE: $000004E5 VOL: 0
-; 0000 02A0                             {
-; 0000 02A1                                 if(++n>10) n = 1;
 ;PCODE: $000004E6 VOL: 0
+; 0000 02AC                         n = 1;
 ;PCODE: $000004E7 VOL: 0
 ;PCODE: $000004E8 VOL: 0
+; 0000 02AD                         for (sig_bayt = 24; sig_bayt < 32; sig_bayt++)
 ;PCODE: $000004E9 VOL: 0
 ;PCODE: $000004EA VOL: 0
 ;PCODE: $000004EB VOL: 0
-; 0000 02A2                                 lcd_putchar(47+n);
 ;PCODE: $000004EC VOL: 0
 ;PCODE: $000004ED VOL: 0
 ;PCODE: $000004EE VOL: 0
 ;PCODE: $000004EF VOL: 0
-; 0000 02A3                                 if((sost[sig_bayt]&(1<<sig_bit)))
 ;PCODE: $000004F0 VOL: 0
+; 0000 02AE                         {
+; 0000 02AF                             for(sig_bit = 0; (sig_bayt == 27 || sig_bayt == 31)? sig_bit < 6: sig_bit < 8; sig_bit += 2)
 ;PCODE: $000004F1 VOL: 0
 ;PCODE: $000004F2 VOL: 0
 ;PCODE: $000004F3 VOL: 0
@@ -1969,8 +1981,6 @@
 ;PCODE: $000004F9 VOL: 0
 ;PCODE: $000004FA VOL: 0
 ;PCODE: $000004FB VOL: 0
-; 0000 02A4                                 {
-; 0000 02A5                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
 ;PCODE: $000004FC VOL: 0
 ;PCODE: $000004FD VOL: 0
 ;PCODE: $000004FE VOL: 0
@@ -1987,67 +1997,62 @@
 ;PCODE: $00000509 VOL: 0
 ;PCODE: $0000050A VOL: 0
 ;PCODE: $0000050B VOL: 0
-; 0000 02A6                                      else  lcd_putchar('.');
+; 0000 02B0                             {
+; 0000 02B1                                 if(++n>10) n = 1;
 ;PCODE: $0000050C VOL: 0
 ;PCODE: $0000050D VOL: 0
 ;PCODE: $0000050E VOL: 0
 ;PCODE: $0000050F VOL: 0
-; 0000 02A7                                 } else lcd_putchar(' ');
 ;PCODE: $00000510 VOL: 0
 ;PCODE: $00000511 VOL: 0
+; 0000 02B2                                 lcd_putchar(47+n);
 ;PCODE: $00000512 VOL: 0
 ;PCODE: $00000513 VOL: 0
 ;PCODE: $00000514 VOL: 0
-; 0000 02A8                             }
 ;PCODE: $00000515 VOL: 0
+; 0000 02B3                                 if((sost[sig_bayt]&(1<<sig_bit)))
 ;PCODE: $00000516 VOL: 0
 ;PCODE: $00000517 VOL: 0
 ;PCODE: $00000518 VOL: 0
 ;PCODE: $00000519 VOL: 0
 ;PCODE: $0000051A VOL: 0
 ;PCODE: $0000051B VOL: 0
-; 0000 02A9                         }
 ;PCODE: $0000051C VOL: 0
 ;PCODE: $0000051D VOL: 0
 ;PCODE: $0000051E VOL: 0
 ;PCODE: $0000051F VOL: 0
-; 0000 02AA                     }
-; 0000 02AB //                    for(n=0;n<32;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
-; 0000 02AC                     break;
 ;PCODE: $00000520 VOL: 0
 ;PCODE: $00000521 VOL: 0
-; 0000 02AD                 case 15:
+; 0000 02B4                                 {
+; 0000 02B5                                      if((sost[sig_bayt]&(1<<(sig_bit+1)))) lcd_putchar(255);
 ;PCODE: $00000522 VOL: 0
 ;PCODE: $00000523 VOL: 0
 ;PCODE: $00000524 VOL: 0
-; 0000 02AE                 case 47:
 ;PCODE: $00000525 VOL: 0
 ;PCODE: $00000526 VOL: 0
 ;PCODE: $00000527 VOL: 0
 ;PCODE: $00000528 VOL: 0
 ;PCODE: $00000529 VOL: 0
-; 0000 02AF                 case 79:
 ;PCODE: $0000052A VOL: 0
 ;PCODE: $0000052B VOL: 0
 ;PCODE: $0000052C VOL: 0
 ;PCODE: $0000052D VOL: 0
 ;PCODE: $0000052E VOL: 0
-; 0000 02B0                 case 111:
 ;PCODE: $0000052F VOL: 0
 ;PCODE: $00000530 VOL: 0
 ;PCODE: $00000531 VOL: 0
+; 0000 02B6                                      else  lcd_putchar('.');
 ;PCODE: $00000532 VOL: 0
 ;PCODE: $00000533 VOL: 0
-; 0000 02B1                     break;
 ;PCODE: $00000534 VOL: 0
-; 0000 02B2                 default:
 ;PCODE: $00000535 VOL: 0
-; 0000 02B3                     if ((sost[sig_bayt]&(1<<sig_bit)) == 0)
+; 0000 02B7                                 } else lcd_putchar(' ');
 ;PCODE: $00000536 VOL: 0
 ;PCODE: $00000537 VOL: 0
 ;PCODE: $00000538 VOL: 0
 ;PCODE: $00000539 VOL: 0
 ;PCODE: $0000053A VOL: 0
+; 0000 02B8                             }
 ;PCODE: $0000053B VOL: 0
 ;PCODE: $0000053C VOL: 0
 ;PCODE: $0000053D VOL: 0
@@ -2055,158 +2060,190 @@
 ;PCODE: $0000053F VOL: 0
 ;PCODE: $00000540 VOL: 0
 ;PCODE: $00000541 VOL: 0
-; 0000 02B4                     {
-; 0000 02B5 
-; 0000 02B6                         if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
+; 0000 02B9                         }
 ;PCODE: $00000542 VOL: 0
 ;PCODE: $00000543 VOL: 0
 ;PCODE: $00000544 VOL: 0
 ;PCODE: $00000545 VOL: 0
+; 0000 02BA                     }
+; 0000 02BB //                    for(n=0;n<32;n++) if (sost[n] != esost[n]) esost[n] = sost[n]; // запись изменений в еепром
+; 0000 02BC                     break;
 ;PCODE: $00000546 VOL: 0
 ;PCODE: $00000547 VOL: 0
+; 0000 02BD                 case 15:
 ;PCODE: $00000548 VOL: 0
 ;PCODE: $00000549 VOL: 0
 ;PCODE: $0000054A VOL: 0
+; 0000 02BE                 case 47:
 ;PCODE: $0000054B VOL: 0
 ;PCODE: $0000054C VOL: 0
 ;PCODE: $0000054D VOL: 0
 ;PCODE: $0000054E VOL: 0
-; 0000 02B7                         {
-; 0000 02B8                             //если был под охр. снять с охр.
-; 0000 02B9                             OCR2B=0xB0; // выдача на шим
 ;PCODE: $0000054F VOL: 0
+; 0000 02BF                 case 79:
 ;PCODE: $00000550 VOL: 0
-; 0000 02BA                             vyh_minus = 1;
 ;PCODE: $00000551 VOL: 0
 ;PCODE: $00000552 VOL: 0
-; 0000 02BB                             esost[sig_bayt] &= ~(1<<sig_bit);      //
 ;PCODE: $00000553 VOL: 0
 ;PCODE: $00000554 VOL: 0
+; 0000 02C0                 case 111:
 ;PCODE: $00000555 VOL: 0
 ;PCODE: $00000556 VOL: 0
 ;PCODE: $00000557 VOL: 0
 ;PCODE: $00000558 VOL: 0
 ;PCODE: $00000559 VOL: 0
+; 0000 02C1                     break;
 ;PCODE: $0000055A VOL: 0
+; 0000 02C2                 default:
 ;PCODE: $0000055B VOL: 0
+; 0000 02C3                     if ((sost[sig_bayt]&(1<<sig_bit)) == 0)
 ;PCODE: $0000055C VOL: 0
 ;PCODE: $0000055D VOL: 0
 ;PCODE: $0000055E VOL: 0
 ;PCODE: $0000055F VOL: 0
 ;PCODE: $00000560 VOL: 0
-; 0000 02BC                             while(time<375) #asm("wdr");
 ;PCODE: $00000561 VOL: 0
 ;PCODE: $00000562 VOL: 0
 ;PCODE: $00000563 VOL: 0
 ;PCODE: $00000564 VOL: 0
 ;PCODE: $00000565 VOL: 0
-	wdr
 ;PCODE: $00000566 VOL: 0
-; 0000 02BD                             vyh_minus = 0;
 ;PCODE: $00000567 VOL: 0
+; 0000 02C4                     {
+; 0000 02C5 
+; 0000 02C6                         if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
 ;PCODE: $00000568 VOL: 0
 ;PCODE: $00000569 VOL: 0
 ;PCODE: $0000056A VOL: 0
-; 0000 02BE                             OCR2B=0xFF;
 ;PCODE: $0000056B VOL: 0
 ;PCODE: $0000056C VOL: 0
-; 0000 02BF 
-; 0000 02C0                         }
-; 0000 02C1                         else  zvuk = 1; // звук если нет ответа от номера не под охраной
 ;PCODE: $0000056D VOL: 0
 ;PCODE: $0000056E VOL: 0
 ;PCODE: $0000056F VOL: 0
 ;PCODE: $00000570 VOL: 0
-; 0000 02C2                     }
 ;PCODE: $00000571 VOL: 0
-; 0000 02C3 
-; 0000 02C4             }
 ;PCODE: $00000572 VOL: 0
 ;PCODE: $00000573 VOL: 0
-; 0000 02C5 
-; 0000 02C6           }
 ;PCODE: $00000574 VOL: 0
-; 0000 02C7           flag435 = 0;
+; 0000 02C7                         {
+; 0000 02C8                             //если был под охр. снять с охр.
+; 0000 02C9 //                            OCR2B=0xB0; // выдача на шим
+; 0000 02CA //                            vyh_minus = 1;
+; 0000 02CB                             esost[sig_bayt] &= ~(1<<sig_bit);      //  снять с охр.
 ;PCODE: $00000575 VOL: 0
 ;PCODE: $00000576 VOL: 0
-; 0000 02C8           if (pit_ok)
 ;PCODE: $00000577 VOL: 0
 ;PCODE: $00000578 VOL: 0
 ;PCODE: $00000579 VOL: 0
-; 0000 02C9           {
-; 0000 02CA             while (time < 125) #asm("wdr");
 ;PCODE: $0000057A VOL: 0
 ;PCODE: $0000057B VOL: 0
 ;PCODE: $0000057C VOL: 0
 ;PCODE: $0000057D VOL: 0
 ;PCODE: $0000057E VOL: 0
-	wdr
 ;PCODE: $0000057F VOL: 0
-; 0000 02CB             pit_ok = 0;
 ;PCODE: $00000580 VOL: 0
 ;PCODE: $00000581 VOL: 0
 ;PCODE: $00000582 VOL: 0
+; 0000 02CC //                            while(time<375) #asm("wdr");
+; 0000 02CD //                            vyh_minus = 0;
+; 0000 02CE //                            OCR2B=0xFF;
+; 0000 02CF 
+; 0000 02D0                         }
+; 0000 02D1                         else  zvuk = 1; // звук если нет ответа от номера не под охраной
 ;PCODE: $00000583 VOL: 0
-; 0000 02CC           }
-; 0000 02CD 
-; 0000 02CE //          if (trevoga) //while (time < 375);
-; 0000 02CF //          trevoga = 0;
-; 0000 02D0           if (sinc_err)
 ;PCODE: $00000584 VOL: 0
 ;PCODE: $00000585 VOL: 0
 ;PCODE: $00000586 VOL: 0
+; 0000 02D2                     }
 ;PCODE: $00000587 VOL: 0
-; 0000 02D1           {
-; 0000 02D2             sinc_err = 0;
+; 0000 02D3 
+; 0000 02D4             }
 ;PCODE: $00000588 VOL: 0
 ;PCODE: $00000589 VOL: 0
-; 0000 02D3             if (!fix)
+; 0000 02D5 
+; 0000 02D6           }
 ;PCODE: $0000058A VOL: 0
+; 0000 02D7           flag435 = 0;
 ;PCODE: $0000058B VOL: 0
 ;PCODE: $0000058C VOL: 0
-; 0000 02D4             {
-; 0000 02D5                 clear_lcd();
+; 0000 02D8           if (pit_ok)
 ;PCODE: $0000058D VOL: 0
-; 0000 02D6                 lcd_gotoxy(0,1);
 ;PCODE: $0000058E VOL: 0
 ;PCODE: $0000058F VOL: 0
+; 0000 02D9           {
+; 0000 02DA             while (time < 125) #asm("wdr");
 ;PCODE: $00000590 VOL: 0
 ;PCODE: $00000591 VOL: 0
-; 0000 02D7                 lcd_putsf("  Error Sync!!! ");
 ;PCODE: $00000592 VOL: 0
 ;PCODE: $00000593 VOL: 0
 ;PCODE: $00000594 VOL: 0
-; 0000 02D8             } else
+	wdr
 ;PCODE: $00000595 VOL: 0
+; 0000 02DB             pit_ok = 0;
 ;PCODE: $00000596 VOL: 0
-; 0000 02D9             {
-; 0000 02DA                 lcd_gotoxy(3,0);
 ;PCODE: $00000597 VOL: 0
 ;PCODE: $00000598 VOL: 0
 ;PCODE: $00000599 VOL: 0
+; 0000 02DC           }
+; 0000 02DD 
+; 0000 02DE //          if (trevoga) //while (time < 375);
+; 0000 02DF //          trevoga = 0;
+; 0000 02E0           if (sinc_err)
 ;PCODE: $0000059A VOL: 0
-; 0000 02DB                 lcd_putchar('F');
 ;PCODE: $0000059B VOL: 0
 ;PCODE: $0000059C VOL: 0
-; 0000 02DC             }
 ;PCODE: $0000059D VOL: 0
-; 0000 02DD             break;
+; 0000 02E1           {
+; 0000 02E2             sinc_err = 0;
 ;PCODE: $0000059E VOL: 0
-; 0000 02DE           }
-; 0000 02DF       }
 ;PCODE: $0000059F VOL: 0
+; 0000 02E3             if (!fix)
 ;PCODE: $000005A0 VOL: 0
 ;PCODE: $000005A1 VOL: 0
 ;PCODE: $000005A2 VOL: 0
+; 0000 02E4             {
+; 0000 02E5                 clear_lcd();
 ;PCODE: $000005A3 VOL: 0
-; 0000 02E0 
-; 0000 02E1 
-; 0000 02E2     }
+; 0000 02E6                 lcd_gotoxy(0,1);
 ;PCODE: $000005A4 VOL: 0
 ;PCODE: $000005A5 VOL: 0
-; 0000 02E3 
-; 0000 02E4 }
 ;PCODE: $000005A6 VOL: 0
 ;PCODE: $000005A7 VOL: 0
+; 0000 02E7                 lcd_putsf("  Error Sync!!! ");
 ;PCODE: $000005A8 VOL: 0
+;PCODE: $000005A9 VOL: 0
+;PCODE: $000005AA VOL: 0
+; 0000 02E8             } else
+;PCODE: $000005AB VOL: 0
+;PCODE: $000005AC VOL: 0
+; 0000 02E9             {
+; 0000 02EA                 lcd_gotoxy(3,0);
+;PCODE: $000005AD VOL: 0
+;PCODE: $000005AE VOL: 0
+;PCODE: $000005AF VOL: 0
+;PCODE: $000005B0 VOL: 0
+; 0000 02EB                 lcd_putchar('F');
+;PCODE: $000005B1 VOL: 0
+;PCODE: $000005B2 VOL: 0
+; 0000 02EC             }
+;PCODE: $000005B3 VOL: 0
+; 0000 02ED             break;
+;PCODE: $000005B4 VOL: 0
+; 0000 02EE           }
+; 0000 02EF       }
+;PCODE: $000005B5 VOL: 0
+;PCODE: $000005B6 VOL: 0
+;PCODE: $000005B7 VOL: 0
+;PCODE: $000005B8 VOL: 0
+;PCODE: $000005B9 VOL: 0
+; 0000 02F0 
+; 0000 02F1 
+; 0000 02F2     }
+;PCODE: $000005BA VOL: 0
+;PCODE: $000005BB VOL: 0
+; 0000 02F3 
+; 0000 02F4 }
+;PCODE: $000005BC VOL: 0
+;PCODE: $000005BD VOL: 0
+;PCODE: $000005BE VOL: 0
 ;

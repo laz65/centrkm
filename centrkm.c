@@ -566,8 +566,24 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                         {
                             //если не был под охр. поставить под охрану.
                             OCR2B=0x50; // выдача на шим
-                            vyh_plus = 1;       
-                            esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану
+                            vyh_plus = 1;  
+                            vyh_t0 = 0;            // переключить а вход 
+                            n = 0;
+                            while(flag435) 
+                            {
+                                flag435 = 0; 
+                                ACSR |= (1<<ACIE); // включить перывания от компарат   
+                                time = 0;
+                                while (time < 9) #asm("wdr");    // 25мСек + 12
+                                ACSR &= ~(1<<ACIE); // выкл прер компар  
+                                 
+                                //Ждем прекращения сигнала
+                                if (++n > 250) flag435 = 0;
+                            }      
+                            vyh_t0 = 1;            // переключить Hа вyход 
+                                      
+                            if(n < 251) esost[sig_bayt] |= (1<<sig_bit);      // включаем охрану если сигнал прервался
+                            else sost[sig_bayt] &= ~(1<<sig_bit);    // если не взялась, - снять
                         }
                         else
                         {
@@ -583,12 +599,12 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                     else  if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
                     {
                             //если был под охр. снять с охр.
-                            OCR2B=0xB0; // выдача на шим
-                            vyh_minus = 1;       
+ //                           OCR2B=0xB0; // выдача на шим
+ //                           vyh_minus = 1;       
                             esost[sig_bayt] &= ~(1<<sig_bit);      // 
-                            while(time<375) #asm("wdr");  
-                            vyh_minus = 0;
-                            OCR2B=0xFF;                 
+//                            while(time<375) #asm("wdr");  
+//                            vyh_minus = 0;
+//                            OCR2B=0xFF;                 
                         
                     }
 
@@ -694,12 +710,12 @@ for(n=0;n<31;n++) sost[n] = esost[n]; // загрузка состояния с флеша.
                         if (esost[sig_bayt]&(1<<sig_bit))  // не под охр, но был
                         {
                             //если был под охр. снять с охр.
-                            OCR2B=0xB0; // выдача на шим
-                            vyh_minus = 1;       
-                            esost[sig_bayt] &= ~(1<<sig_bit);      // 
-                            while(time<375) #asm("wdr");  
-                            vyh_minus = 0;
-                            OCR2B=0xFF;                 
+//                            OCR2B=0xB0; // выдача на шим
+//                            vyh_minus = 1;       
+                            esost[sig_bayt] &= ~(1<<sig_bit);      //  снять с охр.
+//                            while(time<375) #asm("wdr");  
+//                            vyh_minus = 0;
+//                            OCR2B=0xFF;                 
 
                         } 
                         else  zvuk = 1; // звук если нет ответа от номера не под охраной
